@@ -100,14 +100,14 @@
       <div class="flex items-center gap-3">
         <span id="bannerIcon" class="text-2xl">☂️</span>
         <div>
-          <div id="bannerTitle" class="font-extrabold text-white text-sm">Mode Aktif: Payung LED Trisuka Master Sync (Firmware v0.0.7)</div>
+          <div id="bannerTitle" class="font-extrabold text-white text-sm">Mode Aktif: Payung LED Trisuka Master Sync (Firmware v0.0.7 - Horizontal Zigzag)</div>
           <div id="bannerSub" class="text-slate-400 font-mono text-[11px]">
-            P1 (Pin 2): 23 Baris = 990 LED • P2 (Pin 4): 10 Baris = 362 LED • Total: 1.352 LED (4.056 Bytes/Frame) • PSRAM Cache 6MB
+            P1 (Pin 2): Baris 1-23 (990 LED) Bawah ke Tengah • P2 (Pin 4): Baris 24-33 (362 LED) Tengah ke Atas • Total: 1.352 LED
           </div>
         </div>
       </div>
       <div class="flex items-center gap-2 font-mono text-[11px]">
-        <span id="bannerBadge1" class="px-2.5 py-1 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-bold">33 Lingkar Baris</span>
+        <span id="bannerBadge1" class="px-2.5 py-1 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-bold">33 Baris Zig-Zag</span>
         <span id="bannerBadge2" class="px-2.5 py-1 rounded-lg bg-cyber-green/15 text-cyber-green border border-cyber-green/30 font-bold">25.00 FPS Sync</span>
       </div>
     </div>
@@ -145,7 +145,7 @@
               <input id="mediaInput" type="file" multiple accept="image/*,video/mp4,video/webm,video/quicktime" class="hidden" onchange="handleFileUpload(event)">
             </label>
 
-            <!-- Kontrol Playback Live Video MP4 (Muncul otomatis saat upload MP4/WebM) -->
+            <!-- Kontrol Playback Live Video MP4 -->
             <div id="videoLiveControlBox" class="hidden bg-[#0c121e] border border-cyber-cyan/40 rounded-xl p-3 space-y-2">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
@@ -159,7 +159,7 @@
               <input type="range" id="videoTimelineSeek" min="0" max="1000" value="0" oninput="seekUploadedVideo(this.value)" class="w-full h-1.5">
             </div>
 
-            <!-- Daftar Batch File jika pengguna memilih >1 file -->
+            <!-- Daftar Batch File -->
             <div id="batchQueueBox" class="hidden bg-[#0c1018] border border-cyber-purple/40 rounded-xl p-3 space-y-2">
               <div class="flex items-center justify-between text-xs">
                 <span class="font-bold text-purple-300">📦 Antrean Batch (<span id="batchCountLbl">0</span> File)</span>
@@ -227,36 +227,47 @@
           </div>
         </section>
 
-        <!-- 2A. KONFIGURASI KHUSUS PAYUNG LED (1.352 LED - TERKUNCI PERMANEN DEFAULT FIRMWARE v0.0.7) -->
+        <!-- 2A. KONFIGURASI KHUSUS PAYUNG LED (1.352 LED - HORIZONTAL SERPENTINE BAWAH KE ATAS) -->
         <section id="configCardUmbrella" class="bg-cyber-card border border-cyber-cyan/40 rounded-2xl p-5 shadow-xl space-y-3.5">
           <div class="flex items-center justify-between">
             <h2 class="text-sm font-bold uppercase tracking-wider text-cyber-cyan flex items-center gap-2">
-              <span>2. Pemetaan Geometri Payung (1.352 LED)</span>
+              <span>2. Pemetaan Jalur Kabel Payung (1.352 LED)</span>
             </h2>
-            <span class="text-[11px] font-mono bg-cyber-green/15 text-cyber-green border border-cyber-green/30 px-2.5 py-0.5 rounded-md font-bold">🔒 Default Locked</span>
+            <span class="text-[11px] font-mono bg-cyber-green/15 text-cyber-green border border-cyber-green/30 px-2.5 py-0.5 rounded-md font-bold">⚡ Zig-Zag Bawah ➔ Atas</span>
           </div>
 
-          <div class="grid grid-cols-1 gap-2 text-xs">
-            <div class="bg-[#0d111a] border border-slate-800 rounded-xl px-3.5 py-2.5 flex items-center justify-between">
-              <span class="text-slate-400">Mode Proyeksi Kanvas:</span>
-              <span class="font-bold text-white flex items-center gap-1.5">☂️ 2D Polar Canopy (Puncak ke Tepi)</span>
-            </div>
+          <div class="grid grid-cols-1 gap-2.5 text-xs">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              <div class="bg-[#0d111a] border border-slate-800 rounded-xl px-3 py-2">
-                <div class="text-[10px] text-slate-400">Urutan Cincin P1 & P2:</div>
-                <div class="font-bold text-cyber-cyan text-[11px] mt-0.5">P1 (1–23 Dalam) ➔ P2 (24–33 Luar)</div>
+              <div>
+                <label class="text-[11px] text-slate-400 block mb-1">Arah Urutan Baris Vertikal:</label>
+                <select id="umbrellaVertDir" onchange="rebuildUmbrellaGeometry(); refreshPreviewAndStats();" class="w-full bg-[#0d111a] border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-cyber-cyan">
+                  <option value="btt" selected>⬆️ Bawah ke Atas (P1 Bawah ➔ P2 Atas)</option>
+                  <option value="ttb">⬇️ Atas ke Bawah (P1 Atas ➔ P2 Bawah)</option>
+                </select>
               </div>
-              <div class="bg-[#0d111a] border border-slate-800 rounded-xl px-3 py-2">
-                <div class="text-[10px] text-slate-400">Arah Kabel per Baris:</div>
-                <div class="font-bold text-cyber-green text-[11px] mt-0.5">⚡ Zigzag / Serpentine (Fixed)</div>
+              <div>
+                <label class="text-[11px] text-slate-400 block mb-1">Arah Mulai P1 Baris 1 (Zig-Zag):</label>
+                <select id="umbrellaStartDir" onchange="rebuildUmbrellaGeometry(); refreshPreviewAndStats();" class="w-full bg-[#0d111a] border border-slate-700 rounded-xl px-2.5 py-2 text-xs font-bold text-cyber-green">
+                  <option value="ltr" selected>➡️ Baris 1: Kiri➔Kanan, Baris 2: Kanan➔Kiri</option>
+                  <option value="rtl">⬅️ Baris 1: Kanan➔Kiri, Baris 2: Kiri➔Kanan</option>
+                </select>
               </div>
+            </div>
+
+            <div>
+              <label class="text-[11px] text-slate-400 block mb-1">Mode Proyeksi Lebar Baris pada Kanopi:</label>
+              <select id="umbrellaSpanMode" onchange="rebuildUmbrellaGeometry(); refreshPreviewAndStats();" class="w-full bg-[#0d111a] border border-slate-700 rounded-xl px-3 py-2 text-xs font-bold text-white">
+                <option value="chord" selected>☂️ Proporsional Lingkaran Payung (17 LED Sempit, 52 LED Lebar Penuh)</option>
+                <option value="full">⬛ Rentang Penuh Kiri-Kanan (Matrix Stretch 100% Tiap Baris)</option>
+              </select>
             </div>
           </div>
 
           <div class="bg-[#0b0f17] border border-slate-800 rounded-xl p-3 text-[11px] font-mono text-slate-400 space-y-1">
-            <div class="text-slate-200 font-bold">📐 Tabel Piksel Firmware v0.0.7 (4.056 Bytes/Frame):</div>
-            <div>• <span class="text-cyber-cyan">P1 (23 Baris = 990 LED):</span> [17, 21, 27, 33, 35, 37, 39, 41, 43, 45, 47, 49, 49, 51, 51, 51, 51, 51, 50, 51, 52, 50, 49]</div>
-            <div>• <span class="text-cyber-purple">P2 (10 Baris = 362 LED):</span> [47, 47, 45, 43, 40, 36, 34, 29, 23, 18]</div>
+            <div class="text-slate-200 font-bold">📐 Urutan Wiring Fisik Payung (4.056 Bytes/Frame):</div>
+            <div>• <span class="text-cyber-green">Mulai P1 Baris 1 (Bawah):</span> 17 LED (Kiri ➔ Kanan) ➔ naik ke Baris 2: 21 LED (Kanan ➔ Kiri)</div>
+            <div>• <span class="text-cyber-cyan">P1 (Baris 1–23 = 990 LED):</span> [17, 21, 27, 33, 35, 37, 39, 41, 43, 45, 47, 49, 49, 51, 51, 51, 51, 51, 50, 51, 52, 50, 49]</div>
+            <div>• <span class="text-cyber-purple">P2 (Baris 24–33 = 362 LED):</span> [47, 47, 45, 43, 40, 36, 34, 29, 23, 18] (Sampai Puncak Atas)</div>
           </div>
         </section>
 
@@ -307,7 +318,7 @@
             </button>
           </div>
 
-          <!-- Kontrol Skala X & Y (Bisa Kunci Bareng atau Pisah Masing-Masing) -->
+          <!-- Kontrol Skala X & Y -->
           <div class="bg-[#0c1018] border border-slate-800/90 rounded-xl p-3.5 space-y-3">
             <div class="flex items-center justify-between">
               <span class="text-xs font-bold text-white">🔍 Skala Ukuran Materi (Zoom X & Y)</span>
@@ -335,7 +346,7 @@
               </div>
             </div>
 
-            <!-- Kontrol Geser Posisi Materi X & Y (Pan / Offset) -->
+            <!-- Kontrol Geser Posisi Materi X & Y -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
               <div>
                 <div class="flex justify-between text-[11px] mb-1">
@@ -373,16 +384,16 @@
           <div class="grid grid-cols-2 gap-2 pt-1">
             <label class="flex items-center gap-2 bg-[#0d111a] border border-slate-800 px-3 py-2 rounded-xl cursor-pointer text-xs">
               <input type="checkbox" id="chkFlipVert" onchange="refreshPreviewAndStats()" class="rounded accent-cyber-cyan">
-              <span>↕️ Balik Atas-Bawah</span>
+              <span>↕️ Balik Gambar Atas-Bawah</span>
             </label>
             <label class="flex items-center gap-2 bg-[#0d111a] border border-slate-800 px-3 py-2 rounded-xl cursor-pointer text-xs">
               <input type="checkbox" id="chkMirrorHoriz" onchange="refreshPreviewAndStats()" class="rounded accent-cyber-cyan">
-              <span>↔️ Mirror Kiri-Kanan</span>
+              <span>↔️ Mirror Gambar Kiri-Kanan</span>
             </label>
           </div>
         </section>
 
-        <!-- 3. Card Ringkasan File & Tombol Generate / Kirim WiFi (Mendukung Folder Bank 1-4) -->
+        <!-- 3. Card Ringkasan File & Tombol Generate / Kirim WiFi -->
         <section class="bg-gradient-to-b from-[#151b28] to-cyber-card border border-cyber-cyan/40 rounded-2xl p-5 shadow-2xl space-y-4">
           <div class="flex items-center justify-between">
             <h2 class="text-sm font-bold uppercase tracking-wider text-white">3. Ekspor .BIN & Upload ke Controller</h2>
@@ -460,9 +471,9 @@
           <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3.5">
             <div>
               <h2 id="simHeaderTitle" class="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
-                <span>☂️ SIMULATOR KANVAS PAYUNG LED (1.352 PIXEL REAL-TIME)</span>
+                <span>☂️ SIMULATOR KANVAS PAYUNG LED (1.352 PIXEL ZIG-ZAG)</span>
               </h2>
-              <p id="simHeaderSub" class="text-xs text-slate-400">Menampilkan 33 baris lingkar konsentris: P1 (Baris 1-23 = 990 LED) & P2 (Baris 24-33 = 362 LED)</p>
+              <p id="simHeaderSub" class="text-xs text-slate-400">Jalur Horizontal Zig-Zag: P1 Baris 1 (17 LED Bawah, Kiri➔Kanan) naik ke P2 Baris 33 (18 LED Atas)</p>
             </div>
             <div class="flex items-center gap-2">
               <button id="btnToggleSim" onclick="toggleLaserSimulation()" class="px-3 py-1.5 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/40 text-xs font-bold hover:bg-cyber-cyan hover:text-black transition">
@@ -479,15 +490,15 @@
               <div class="w-full flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400 mt-3 px-2">
                 <div class="flex items-center gap-2">
                   <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyber-cyan"></span>
-                  <span>P1: Baris 1–23 (990 LED)</span>
+                  <span>P1: Baris 1–23 (Bawah ke Tengah, 990 LED)</span>
                 </div>
                 <div class="flex items-center gap-2">
                   <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyber-purple"></span>
-                  <span>P2: Baris 24–33 (362 LED)</span>
+                  <span>P2: Baris 24–33 (Tengah ke Atas, 362 LED)</span>
                 </div>
                 <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
                   <input type="checkbox" id="chkShowRingGuides" checked onchange="drawSimulatorFrame()" class="rounded accent-cyber-cyan">
-                  <span>Tampilkan Garis Cincin P1/P2</span>
+                  <span>Tampilkan Jalur Kabel Zig-Zag</span>
                 </label>
               </div>
             </div>
@@ -571,19 +582,19 @@
 
       <div class="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
         <p>
-          Karena aplikasi <b>Trisuka Leviwand POV Studio</b> ini dibuat dalam bentuk <b>Single-File (<code class="text-cyber-green">index.html</code>)</b> dan memproses semuanya langsung di browser HP/Laptop tanpa server berbayar, kamu bisa meng-online-kannya secara <b>100% GRATIS</b> lewat GitHub & Mirror Server:
+          Karena aplikasi <b>Trisuka Pixel Studio</b> ini dibuat dalam bentuk <b>Single-File (<code class="text-cyber-green">index.html</code>)</b> dan memproses semuanya langsung di browser HP/Laptop tanpa server berbayar, kamu bisa meng-online-kannya secara <b>100% GRATIS</b> lewat GitHub & Mirror Server:
         </p>
 
         <div class="bg-[#0b0e15] border border-slate-800 rounded-xl p-4 space-y-2">
           <div class="font-bold text-white text-sm">🚀 Cara 1: Pakai Mirror Server Instan (raw.githack.com / Statically)</div>
           <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-300">
-            <li>Klik tombol <b>"💾 Unduh Web (index.html)"</b> di pojok kanan atas halaman ini.</li>
-            <li>Buka akun <a href="https://github.com" target="_blank" class="text-cyber-cyan underline">GitHub.com</a> kamu, buat repository publik baru (misal: <code class="text-cyber-green">leviwand-pov</code>).</li>
+            <li>Klik tombol <b>"💾 Unduh .HTML"</b> di pojok kanan atas halaman ini.</li>
+            <li>Buka akun <a href="https://github.com" target="_blank" class="text-cyber-cyan underline">GitHub.com</a> kamu, buat repository publik baru (misal: <code class="text-cyber-green">trisuka-pixel</code>).</li>
             <li>Upload file <code class="text-cyber-green">index.html</code> tersebut ke dalam repository.</li>
             <li>Kamu bisa langsung membukanya lewat server mirror CDN gratis cukup dengan menempelkan URL file GitHub kamu ke:
               <ul class="list-disc list-inside ml-4 mt-1 text-cyber-cyan font-mono text-[11px] space-y-1">
-                <li>https://raw.githack.com/USERNAME/leviwand-pov/main/index.html</li>
-                <li>https://cdn.statically.io/gh/USERNAME/leviwand-pov/main/index.html</li>
+                <li>https://raw.githack.com/USERNAME/trisuka-pixel/main/index.html</li>
+                <li>https://cdn.statically.io/gh/USERNAME/trisuka-pixel/main/index.html</li>
               </ul>
             </li>
           </ol>
@@ -595,7 +606,7 @@
             <li>Di repository GitHub kamu, buka menu <b>Settings ➔ Pages</b>.</li>
             <li>Pada bagian <b>Branch</b>, pilih <code class="text-cyber-green">main</code> lalu klik <b>Save</b>.</li>
             <li>Tunggu 1 menit, web converter kamu langsung aktif di alamat: <br>
-              <code class="text-cyber-green font-mono">https://USERNAME.github.io/leviwand-pov/</code>
+              <code class="text-cyber-green font-mono">https://USERNAME.github.io/trisuka-pixel/</code>
             </li>
           </ol>
         </div>
@@ -634,7 +645,7 @@
     const UMBRELLA_FRAME_BYTES = UMBRELLA_TOTAL_LEDS * 3; // 4.056 Bytes per Frame
 
     // Tabel koordinat Pre-computed untuk setiap LED (0..1351) pada Payung
-    let umbrellaLedCoords = []; // [{ rowIdx, ledInRow, isP2, normX, normY, radiusNorm, angleRad }]
+    let umbrellaLedCoords = [];
 
     // =========================================================================
     // STATE GLOBAL APLIKASI TRISUKA PIXEL STUDIO
@@ -665,35 +676,58 @@
     const spinCanvas = document.getElementById('canvasSpinPreview');
     const spinCtx = spinCanvas.getContext('2d');
 
-    let isExportingBin = false; // Flag agar live video loop tidak berebut dengan proses render .bin
+    let isExportingBin = false;
 
     // =========================================================================
-    // 1. PEMBANGUN TABEL GEOMETRI 1.352 LED PAYUNG (LOCKED KE DEFAULT v0.0.7)
+    // 1. PEMBANGUN TABEL GEOMETRI 1.352 LED PAYUNG (HORIZONTAL ZIG-ZAG BAWAH KE ATAS)
     // =========================================================================
     function rebuildUmbrellaGeometry() {
-      // Geometri Payung dikunci permanen sesuai spesifikasi hardware Firmware v0.0.7:
-      // - Proyeksi: 2D Polar Canopy
-      // - Urutan Cincin: P1 (Baris 1-23 Dalam) -> P2 (Baris 24-33 Luar)
-      // - Arah Kabel per Baris: Zigzag / Serpentine
+      // Sesuai wiring fisik Payung LED:
+      // - Mulai dari P1 Baris 1 (17 LED) di bagian BAWAH, berjalan dari Kiri ke Kanan
+      // - Naik 1 tingkat ke P1 Baris 2 (21 LED), berjalan dari Kanan ke Kiri
+      // - Zig-zag horizontal terus naik ke atas sampai P2 Baris 33 (18 LED) di puncak atas
+      const spanModeEl = document.getElementById('umbrellaSpanMode');
+      const spanMode = spanModeEl ? spanModeEl.value : 'chord';
+
+      const startDirEl = document.getElementById('umbrellaStartDir');
+      const startLeftToRight = startDirEl ? (startDirEl.value === 'ltr') : true;
+
+      const vertDirEl = document.getElementById('umbrellaVertDir');
+      const bottomToTop = vertDirEl ? (vertDirEl.value === 'btt') : true;
+
       umbrellaLedCoords = [];
 
       const totalRows = UMBRELLA_ALL_ROWS.length; // 33 baris
+      const maxCols = Math.max(...UMBRELLA_ALL_ROWS); // 52 LED (baris terlebar di tengah)
+
       for (let r = 0; r < totalRows; r++) {
         const countInRow = UMBRELLA_ALL_ROWS[r];
         const isP2 = (r >= UMBRELLA_P1_ROWS.length);
 
-        const radiusNorm = 0.08 + (r / (totalRows - 1)) * 0.88;
-        const reverseRow = (r % 2 === 1); // Zigzag / Serpentine
+        // Baris genap (index r=0,2,4 -> Baris 1,3,5): Kiri ke Kanan
+        // Baris ganjil (index r=1,3,5 -> Baris 2,4,6): Kanan ke Kiri
+        const isEvenRow = (r % 2 === 0);
+        const goLeftToRight = startLeftToRight ? isEvenRow : !isEvenRow;
+
+        // Posisi vertikal Y: r=0 di bagian bawah (Y=0.95), r=32 di bagian atas (Y=0.05)
+        const rowNorm = r / (totalRows - 1); // 0.0 .. 1.0
+        const rawY = bottomToTop ? (1.0 - rowNorm) : rowNorm;
+        const normY = 0.04 + rawY * 0.92;
+
+        // Lebar baris mengikuti proporsi jumlah LED pada baris tersebut terhadap diameter 52 LED
+        const rowWidthRatio = (spanMode === 'chord') ? ((countInRow / maxCols) * 0.92) : 0.92;
+        const xStart = 0.5 - (rowWidthRatio * 0.5);
 
         for (let i = 0; i < countInRow; i++) {
-          const effectiveIdx = reverseRow ? (countInRow - 1 - i) : i;
-          const angleRad = (effectiveIdx / countInRow) * Math.PI * 2.0 - (Math.PI / 2.0);
+          const colPos = goLeftToRight ? i : (countInRow - 1 - i);
+          const fracX = (countInRow > 1) ? (colPos / (countInRow - 1)) : 0.5;
+          const normX = xStart + fracX * rowWidthRatio;
 
-          const polarX = 0.5 + 0.5 * radiusNorm * Math.cos(angleRad);
-          const polarY = 0.5 + 0.5 * radiusNorm * Math.sin(angleRad);
-
-          const matrixX = effectiveIdx / Math.max(1, countInRow - 1);
-          const matrixY = r / (totalRows - 1);
+          // Koordinat relatif terhadap titik pusat payung (0.5, 0.5)
+          const dx = normX - 0.5;
+          const dy = normY - 0.5;
+          const radiusNorm = Math.sqrt(dx * dx + dy * dy) * 2.0;
+          const angleRad = Math.atan2(dy, dx);
 
           umbrellaLedCoords.push({
             rowIdx: r,
@@ -701,10 +735,10 @@
             isP2,
             radiusNorm,
             angleRad,
-            polarX: Math.min(0.999, Math.max(0.0, polarX)),
-            polarY: Math.min(0.999, Math.max(0.0, polarY)),
-            matrixX: Math.min(0.999, Math.max(0.0, matrixX)),
-            matrixY: Math.min(0.999, Math.max(0.0, matrixY))
+            polarX: Math.min(0.999, Math.max(0.0, normX)),
+            polarY: Math.min(0.999, Math.max(0.0, normY)),
+            matrixX: Math.min(0.999, Math.max(0.0, fracX)),
+            matrixY: Math.min(0.999, Math.max(0.0, normY))
           });
         }
       }
@@ -764,10 +798,6 @@
       showToast('Skala X/Y dan posisi geser materi di-reset ke 100% (Tengah).');
     }
 
-    /**
-     * Menggambar sourceElem (Image / Video / Generator) ke rawCanvas (240x240)
-     * dengan menerapkan Skala X, Skala Y, Geser X, dan Geser Y secara real-time.
-     */
     function renderTransformedSourceToRawCanvas(sourceElem) {
       if (!sourceElem) return;
       const sz = 240;
@@ -814,12 +844,12 @@
         viewLev.classList.add('hidden');
 
         document.getElementById('bannerIcon').innerText = '☂️';
-        document.getElementById('bannerTitle').innerText = 'Mode Aktif: Payung LED Trisuka Master Sync (Firmware v0.0.7)';
-        document.getElementById('bannerSub').innerText = 'P1 (Pin 2): 23 Baris = 990 LED • P2 (Pin 4): 10 Baris = 362 LED • Total: 1.352 LED (4.056 Bytes/Frame) • PSRAM Cache 6MB';
-        document.getElementById('bannerBadge1').innerText = '33 Lingkar Baris';
+        document.getElementById('bannerTitle').innerText = 'Mode Aktif: Payung LED Trisuka Master Sync (Firmware v0.0.7 - Horizontal Zigzag)';
+        document.getElementById('bannerSub').innerText = 'P1 (Pin 2): Baris 1-23 (990 LED) Bawah ke Tengah • P2 (Pin 4): Baris 24-33 (362 LED) Tengah ke Atas • Total: 1.352 LED';
+        document.getElementById('bannerBadge1').innerText = '33 Baris Zig-Zag';
         document.getElementById('bannerBadge2').innerText = '4.056 B / Frame';
-        document.getElementById('simHeaderTitle').innerHTML = '<span>☂️ SIMULATOR KANVAS PAYUNG LED (1.352 PIXEL REAL-TIME)</span>';
-        document.getElementById('simHeaderSub').innerText = 'Menampilkan 33 baris lingkar konsentris: P1 (Baris 1-23 = 990 LED) & P2 (Baris 24-33 = 362 LED)';
+        document.getElementById('simHeaderTitle').innerHTML = '<span>☂️ SIMULATOR KANVAS PAYUNG LED (1.352 PIXEL ZIG-ZAG)</span>';
+        document.getElementById('simHeaderSub').innerText = 'Jalur Horizontal Zig-Zag: P1 Baris 1 (17 LED Bawah, Kiri➔Kanan) naik ke P2 Baris 33 (18 LED Atas)';
         document.getElementById('activePropFooterLbl').innerText = 'Target: Payung 1.352 LED';
 
         const fnInput = document.getElementById('outFilename');
@@ -1116,7 +1146,7 @@
     // 6. ALGORITMA KONVERSI PAYUNG LED (1.352 LED) & LEVIWAND POV (58 LED)
     // =========================================================================
     function applyColorCorrection(val, gamma, briScale) {
-      if (val <= 3) return 0; // Pastikan background hitam murni tetap hitam mutlak
+      if (val <= 3) return 0;
       let norm = (val / 255.0) * briScale;
       if (norm > 1.0) norm = 1.0;
       if (norm < 0.0) norm = 0.0;
@@ -1125,6 +1155,7 @@
 
     /**
      * Mengekstrak 1 Frame Payung LED (1.352 LED = 4.056 Bytes RGB) dari sourceElem
+     * sesuai urutan Zig-Zag Bawah ke Atas (P1 Baris 1 -> P2 Baris 33)
      */
     function extractUmbrellaFrameBytes(sourceElem, mapMode, gamma, briScale, flipVert, mirrorHoriz, rotationOffsetRad = 0) {
       const sqSize = 240;
@@ -1254,7 +1285,8 @@
       const mode = document.getElementById('binModeSelect').value;
       const ledCount = Math.max(16, Math.min(300, parseInt(document.getElementById('ledCountInput').value) || 58));
       const colsPerMode = parseInt(document.getElementById('colsWidthSelect').value) || 120;
-      const umbrellaMapMode = 'polar'; // Dikunci permanen ke 2D Polar Canopy sesuai default Firmware v0.0.7
+      const spanModeEl = document.getElementById('umbrellaSpanMode');
+      const umbrellaMapMode = (spanModeEl && spanModeEl.value === 'full') ? 'matrix' : 'polar';
       const gamma = parseFloat(document.getElementById('gammaRange').value) || 2.0;
       const briScale = (parseFloat(document.getElementById('briRange').value) || 100) / 100.0;
       const flipVert = document.getElementById('chkFlipVert').checked;
@@ -1263,7 +1295,6 @@
     }
 
     function refreshPreviewAndStats() {
-      // Terapkan transformasi Skala X/Y & Geser X/Y pada sumber aktif sebelum ekstraksi LED
       if (!isExportingBin) {
         if (currentSourceType === 'video') {
           const vid = document.getElementById('hiddenVideo');
@@ -1275,8 +1306,11 @@
 
       const cfg = getSettings();
       if (activePropDevice === 'umbrella') {
+        const rotOffset = (simActive && currentSourceType !== 'video' && document.getElementById('chkAnimatePreset').checked)
+          ? (simStepCounter * 0.025)
+          : 0;
         currentUmbrellaFrameData = extractUmbrellaFrameBytes(
-          rawCanvas, cfg.umbrellaMapMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz, 0
+          rawCanvas, cfg.umbrellaMapMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz, rotOffset
         );
       } else {
         const { orbitBytes, spinBytes } = extractFramePovBuffers(
@@ -1358,32 +1392,37 @@
       if (!currentUmbrellaFrameData || umbrellaLedCoords.length === 0) return;
       const w = umbrellaCanvas.width;
       const h = umbrellaCanvas.height;
-      const cx = w / 2;
-      const cy = h / 2;
-      const maxR = (w / 2) - 14;
+      const pad = 22;
+      const drawW = w - pad * 2;
+      const drawH = h - pad * 2;
 
       umbrellaCtx.fillStyle = '#05070b';
       umbrellaCtx.fillRect(0, 0, w, h);
 
       const showGuides = document.getElementById('chkShowRingGuides').checked;
-      if (showGuides) {
-        umbrellaCtx.strokeStyle = 'rgba(0, 229, 255, 0.16)';
-        umbrellaCtx.lineWidth = 1;
-        umbrellaCtx.beginPath();
-        umbrellaCtx.arc(cx, cy, maxR * 0.68, 0, Math.PI * 2);
-        umbrellaCtx.stroke();
 
-        umbrellaCtx.strokeStyle = 'rgba(213, 0, 249, 0.2)';
-        umbrellaCtx.beginPath();
-        umbrellaCtx.arc(cx, cy, maxR * 0.96, 0, Math.PI * 2);
-        umbrellaCtx.stroke();
+      // Gambar alur kabel Zig-Zag dari LED #1 (Bawah) sampai LED #1352 (Atas)
+      if (showGuides) {
+        umbrellaCtx.lineWidth = 1;
+        for (let i = 0; i < UMBRELLA_TOTAL_LEDS - 1; i++) {
+          const pt1 = umbrellaLedCoords[i];
+          const pt2 = umbrellaLedCoords[i + 1];
+          const x1 = pad + pt1.polarX * drawW;
+          const y1 = pad + pt1.polarY * drawH;
+          const x2 = pad + pt2.polarX * drawW;
+          const y2 = pad + pt2.polarY * drawH;
+
+          umbrellaCtx.strokeStyle = pt1.isP2
+            ? 'rgba(213, 0, 249, 0.22)'
+            : 'rgba(0, 229, 255, 0.18)';
+          umbrellaCtx.beginPath();
+          umbrellaCtx.moveTo(x1, y1);
+          umbrellaCtx.lineTo(x2, y2);
+          umbrellaCtx.stroke();
+        }
       }
 
-      // Jika sumber adalah Video MP4, jangan putar kanvas secara paksa agar gerakan asli video terlihat jelas!
-      const rotOffset = (simActive && currentSourceType !== 'video' && document.getElementById('chkAnimatePreset').checked)
-        ? (simStepCounter * 0.025)
-        : 0;
-
+      // Gambar 1.352 titik LED sesuai posisi fisik baris horizontal
       for (let i = 0; i < UMBRELLA_TOTAL_LEDS; i++) {
         const pt = umbrellaLedCoords[i];
         const bIdx = i * 3;
@@ -1391,23 +1430,30 @@
         const g = currentUmbrellaFrameData[bIdx + 1];
         const b = currentUmbrellaFrameData[bIdx + 2];
 
-        const ang = pt.angleRad + rotOffset;
-        const px = cx + pt.radiusNorm * maxR * Math.cos(ang);
-        const py = cy + pt.radiusNorm * maxR * Math.sin(ang);
+        const px = pad + pt.polarX * drawW;
+        const py = pad + pt.polarY * drawH;
 
         umbrellaCtx.fillStyle = (r > 3 || g > 3 || b > 3)
           ? `rgb(${r},${g},${b})`
-          : (pt.isP2 ? 'rgba(213,0,249,0.12)' : 'rgba(0,229,255,0.12)');
+          : (pt.isP2 ? 'rgba(213,0,249,0.18)' : 'rgba(0,229,255,0.18)');
 
         umbrellaCtx.beginPath();
         umbrellaCtx.arc(px, py, 3.1, 0, Math.PI * 2);
         umbrellaCtx.fill();
       }
 
-      umbrellaCtx.fillStyle = '#ffffff';
-      umbrellaCtx.beginPath();
-      umbrellaCtx.arc(cx, cy, 4, 0, Math.PI * 2);
-      umbrellaCtx.fill();
+      // Tandai titik START P1 (LED #1) dan START P2 (LED #991) jika Guide aktif
+      if (showGuides && umbrellaLedCoords.length === UMBRELLA_TOTAL_LEDS) {
+        const p1Start = umbrellaLedCoords[0];
+        const p2Start = umbrellaLedCoords[990];
+
+        umbrellaCtx.font = 'bold 10px JetBrains Mono, monospace';
+        umbrellaCtx.fillStyle = '#00e676';
+        umbrellaCtx.fillText('▶ P1 START (Baris 1)', pad + p1Start.polarX * drawW - 10, pad + p1Start.polarY * drawH + 14);
+
+        umbrellaCtx.fillStyle = '#d500f9';
+        umbrellaCtx.fillText('▶ P2 START (Baris 24)', pad + p2Start.polarX * drawW - 10, pad + p2Start.polarY * drawH - 7);
+      }
     }
 
     function drawLeviwandPovSimulator() {
@@ -1494,7 +1540,6 @@
       if (simActive && !isExportingBin) {
         simStepCounter = (simStepCounter + 1) % 3600;
 
-        // Jika sumber adalah Video MP4/WebM dan sedang diputar, ambil frame video terbaru secara real-time!
         if (currentSourceType === 'video') {
           const vid = document.getElementById('hiddenVideo');
           if (vid && vid.readyState >= 2) {
@@ -1516,6 +1561,12 @@
               document.getElementById('videoTimelineSeek').value = Math.round((vid.currentTime / vid.duration) * 1000);
             }
           }
+        } else if (activePropDevice === 'umbrella' && document.getElementById('chkAnimatePreset').checked) {
+          const cfg = getSettings();
+          const rotOffset = simStepCounter * 0.025;
+          currentUmbrellaFrameData = extractUmbrellaFrameBytes(
+            rawCanvas, cfg.umbrellaMapMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz, rotOffset
+          );
         }
 
         drawSimulatorFrame();
@@ -1525,8 +1576,6 @@
 
     // =========================================================================
     // 8. GENERATOR BINARY (.BIN) PENUH UNTUK PAYUNG LED & LEVIWAND POV
-    // =========================================================================
-    // 8. GENERATOR BINARY (.BIN) PENUH UNTUK PAYUNG LED & LEVIWAND POV (HIGH-SPEED BATCH)
     // =========================================================================
     async function buildCompleteBinUint8Array() {
       const cfg = getSettings();
@@ -1565,7 +1614,7 @@
               pBar.style.width = pct + '%';
               pPct.innerText = pct + '%';
               pTxt.innerText = `Render Cepat Payung Frame ${f + 1} / ${totalFrames}...`;
-              if (f % 5 === 0) await new Promise(r => setTimeout(r, 0)); // Yield ke UI thread agar tidak macet
+              if (f % 5 === 0) await new Promise(r => setTimeout(r, 0));
             }
             setTimeout(() => pWrap.classList.add('hidden'), 800);
             return outBuffer;
