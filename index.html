@@ -409,7 +409,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <div>
               <label class="text-xs text-slate-400 block mb-1">Nama File Output (<code class="text-cyber-cyan">.bin</code>):</label>
-              <input type="text" id="outFilename" value="payung_sync.bin" class="w-full bg-[#0d111a] border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white">
+              <input type="text" id="outFilename" value="payung_sync.bin" class="w-full bg-[#0d111a] border border-cyber-cyan/60 rounded-xl px-3 py-2 text-xs font-mono font-bold text-white focus:outline-none focus:border-cyber-cyan" placeholder="Ketik nama file...">
             </div>
             <div>
               <label class="text-xs text-slate-400 block mb-1">Folder Tujuan Upload WiFi:</label>
@@ -431,7 +431,7 @@
               <span id="convProgressPct" class="text-white font-bold">0%</span>
             </div>
             <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
-              <div id="convProgressBar" class="h-full bg-gradient-to-r from-cyber-cyan to-cyber-green w-0 transition-all duration-150"></div>
+              <div id="convProgressBar" class="h-full bg-gradient-to-r from-cyber-cyan to-cyber-green w-0 transition-all duration-75"></div>
             </div>
           </div>
 
@@ -1116,6 +1116,7 @@
     // 6. ALGORITMA KONVERSI PAYUNG LED (1.352 LED) & LEVIWAND POV (58 LED)
     // =========================================================================
     function applyColorCorrection(val, gamma, briScale) {
+      if (val <= 3) return 0; // Pastikan background hitam murni tetap hitam mutlak
       let norm = (val / 255.0) * briScale;
       if (norm > 1.0) norm = 1.0;
       if (norm < 0.0) norm = 0.0;
@@ -1131,6 +1132,9 @@
       off.width = sqSize;
       off.height = sqSize;
       const ctx = off.getContext('2d', { willReadFrequently: true });
+
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, sqSize, sqSize);
 
       ctx.save();
       ctx.translate(sqSize / 2, sqSize / 2);
@@ -1171,6 +1175,9 @@
       offOrbit.height = ledCount;
       const ctxO = offOrbit.getContext('2d', { willReadFrequently: true });
 
+      ctxO.fillStyle = '#000000';
+      ctxO.fillRect(0, 0, colsPerMode, ledCount);
+
       ctxO.save();
       if (mirrorHoriz || flipVert) {
         ctxO.translate(mirrorHoriz ? colsPerMode : 0, flipVert ? ledCount : 0);
@@ -1198,6 +1205,9 @@
       offSpin.width = sqSize;
       offSpin.height = sqSize;
       const ctxS = offSpin.getContext('2d', { willReadFrequently: true });
+
+      ctxS.fillStyle = '#000000';
+      ctxS.fillRect(0, 0, sqSize, sqSize);
 
       ctxS.save();
       if (mirrorHoriz || flipVert) {
@@ -1516,6 +1526,8 @@
     // =========================================================================
     // 8. GENERATOR BINARY (.BIN) PENUH UNTUK PAYUNG LED & LEVIWAND POV
     // =========================================================================
+    // 8. GENERATOR BINARY (.BIN) PENUH UNTUK PAYUNG LED & LEVIWAND POV (HIGH-SPEED BATCH)
+    // =========================================================================
     async function buildCompleteBinUint8Array() {
       const cfg = getSettings();
       const fps = parseInt(document.getElementById('videoFpsSelect').value) || 25;
@@ -1552,9 +1564,10 @@
               const pct = Math.round(((f + 1) / totalFrames) * 100);
               pBar.style.width = pct + '%';
               pPct.innerText = pct + '%';
-              pTxt.innerText = `Render Payung Frame ${f + 1} / ${totalFrames}...`;
+              pTxt.innerText = `Render Cepat Payung Frame ${f + 1} / ${totalFrames}...`;
+              if (f % 5 === 0) await new Promise(r => setTimeout(r, 0)); // Yield ke UI thread agar tidak macet
             }
-            setTimeout(() => pWrap.classList.add('hidden'), 1000);
+            setTimeout(() => pWrap.classList.add('hidden'), 800);
             return outBuffer;
           } else {
             renderTransformedSourceToRawCanvas(uploadedImageObj);
@@ -1572,9 +1585,9 @@
               pBar.style.width = pct + '%';
               pPct.innerText = pct + '%';
               pTxt.innerText = `Render Payung Frame ${f + 1} / ${totalFrames}...`;
-              if (f % 10 === 0) await new Promise(r => setTimeout(r, 1));
+              if (f % 15 === 0) await new Promise(r => setTimeout(r, 0));
             }
-            setTimeout(() => pWrap.classList.add('hidden'), 1000);
+            setTimeout(() => pWrap.classList.add('hidden'), 800);
             return outBuffer;
           }
         }
@@ -1628,8 +1641,9 @@
           pBar.style.width = pct + '%';
           pPct.innerText = pct + '%';
           pTxt.innerText = `Render Leviwand Frame ${f + 1} / ${totalFrames}...`;
+          if (f % 5 === 0) await new Promise(r => setTimeout(r, 0));
         }
-        setTimeout(() => pWrap.classList.add('hidden'), 1000);
+        setTimeout(() => pWrap.classList.add('hidden'), 800);
         return outBuffer;
       } finally {
         isExportingBin = false;
