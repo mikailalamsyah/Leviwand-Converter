@@ -145,6 +145,20 @@
               <input id="mediaInput" type="file" multiple accept="image/*,video/mp4,video/webm,video/quicktime" class="hidden" onchange="handleFileUpload(event)">
             </label>
 
+            <!-- Kontrol Playback Live Video MP4 (Muncul otomatis saat upload MP4/WebM) -->
+            <div id="videoLiveControlBox" class="hidden bg-[#0c121e] border border-cyber-cyan/40 rounded-xl p-3 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <button id="btnVideoPlayPause" type="button" onclick="toggleUploadedVideoPlayback()" class="px-2.5 py-1 rounded-lg bg-cyber-cyan text-black font-extrabold text-xs flex items-center gap-1 hover:bg-cyan-300 transition">
+                    <span>⏸️</span> <span id="lblVideoPlayPause">Pause Video</span>
+                  </button>
+                  <span class="text-[11px] font-mono text-cyber-green font-bold">● LIVE MP4 PREVIEW</span>
+                </div>
+                <span id="videoTimeCounter" class="text-[11px] font-mono text-slate-300">0.0s / 0.0s</span>
+              </div>
+              <input type="range" id="videoTimelineSeek" min="0" max="1000" value="0" oninput="seekUploadedVideo(this.value)" class="w-full h-1.5">
+            </div>
+
             <!-- Daftar Batch File jika pengguna memilih >1 file -->
             <div id="batchQueueBox" class="hidden bg-[#0c1018] border border-cyber-purple/40 rounded-xl p-3 space-y-2">
               <div class="flex items-center justify-between text-xs">
@@ -213,43 +227,34 @@
           </div>
         </section>
 
-        <!-- 2A. KONFIGURASI KHUSUS PAYUNG LED (1.352 LED - 33 BARIS) -->
-        <section id="configCardUmbrella" class="bg-cyber-card border border-cyber-cyan/40 rounded-2xl p-5 shadow-xl space-y-4">
+        <!-- 2A. KONFIGURASI KHUSUS PAYUNG LED (1.352 LED - TERKUNCI PERMANEN DEFAULT FIRMWARE v0.0.7) -->
+        <section id="configCardUmbrella" class="bg-cyber-card border border-cyber-cyan/40 rounded-2xl p-5 shadow-xl space-y-3.5">
           <div class="flex items-center justify-between">
             <h2 class="text-sm font-bold uppercase tracking-wider text-cyber-cyan flex items-center gap-2">
               <span>2. Pemetaan Geometri Payung (1.352 LED)</span>
             </h2>
-            <span class="text-[11px] font-mono bg-cyber-cyan/15 text-cyber-cyan px-2 py-0.5 rounded font-bold">P1:990 + P2:362</span>
+            <span class="text-[11px] font-mono bg-cyber-green/15 text-cyber-green border border-cyber-green/30 px-2.5 py-0.5 rounded-md font-bold">🔒 Default Locked</span>
           </div>
 
-          <div>
-            <label class="text-xs font-semibold text-slate-300 block mb-1">Mode Proyeksi Kanvas Payung:</label>
-            <select id="umbrellaMapMode" onchange="refreshPreviewAndStats()" class="w-full bg-[#0d111a] border border-cyber-cyan/50 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-white">
-              <option value="polar" selected>☂️ 2D Polar Canopy (Proyeksi Melingkar dari Puncak ke Tepi Payung)</option>
-              <option value="matrix">📊 2D Matrix Silinder (33 Baris Vertikal × Lebar Gambar Horizontal)</option>
-            </select>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label class="text-xs font-semibold text-slate-300 block mb-1">Urutan Cincin P1 & P2:</label>
-              <select id="umbrellaRingOrder" onchange="rebuildUmbrellaGeometry(); refreshPreviewAndStats();" class="w-full bg-[#0d111a] border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white font-semibold">
-                <option value="p1_in_p2_out" selected>P1 (Baris 1-23 Dalam) ➔ P2 (Baris 24-33 Luar)</option>
-                <option value="p1_out_p2_in">P1 (Luar ke Dalam) + P2 (Dalam ke Luar)</option>
-              </select>
+          <div class="grid grid-cols-1 gap-2 text-xs">
+            <div class="bg-[#0d111a] border border-slate-800 rounded-xl px-3.5 py-2.5 flex items-center justify-between">
+              <span class="text-slate-400">Mode Proyeksi Kanvas:</span>
+              <span class="font-bold text-white flex items-center gap-1.5">☂️ 2D Polar Canopy (Puncak ke Tepi)</span>
             </div>
-            <div>
-              <label class="text-xs font-semibold text-slate-300 block mb-1">Arah Kabel LED per Baris:</label>
-              <select id="umbrellaWiringMode" onchange="rebuildUmbrellaGeometry(); refreshPreviewAndStats();" class="w-full bg-[#0d111a] border border-slate-700 rounded-xl px-2.5 py-2 text-xs text-white font-semibold">
-                <option value="zigzag" selected>⚡ Zigzag / Serpentine (Bolak-Balik per Baris)</option>
-                <option value="cw">🔄 Searah Jarum Jam (CW Semua Baris)</option>
-                <option value="ccw">🔃 Berlawanan Jarum Jam (CCW Semua Baris)</option>
-              </select>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div class="bg-[#0d111a] border border-slate-800 rounded-xl px-3 py-2">
+                <div class="text-[10px] text-slate-400">Urutan Cincin P1 & P2:</div>
+                <div class="font-bold text-cyber-cyan text-[11px] mt-0.5">P1 (1–23 Dalam) ➔ P2 (24–33 Luar)</div>
+              </div>
+              <div class="bg-[#0d111a] border border-slate-800 rounded-xl px-3 py-2">
+                <div class="text-[10px] text-slate-400">Arah Kabel per Baris:</div>
+                <div class="font-bold text-cyber-green text-[11px] mt-0.5">⚡ Zigzag / Serpentine (Fixed)</div>
+              </div>
             </div>
           </div>
 
           <div class="bg-[#0b0f17] border border-slate-800 rounded-xl p-3 text-[11px] font-mono text-slate-400 space-y-1">
-            <div class="text-slate-200 font-bold">📐 Tabel Piksel Firmware v0.0.7:</div>
+            <div class="text-slate-200 font-bold">📐 Tabel Piksel Firmware v0.0.7 (4.056 Bytes/Frame):</div>
             <div>• <span class="text-cyber-cyan">P1 (23 Baris = 990 LED):</span> [17, 21, 27, 33, 35, 37, 39, 41, 43, 45, 47, 49, 49, 51, 51, 51, 51, 51, 50, 51, 52, 50, 49]</div>
             <div>• <span class="text-cyber-purple">P2 (10 Baris = 362 LED):</span> [47, 47, 45, 43, 40, 36, 34, 29, 23, 18]</div>
           </div>
@@ -291,20 +296,79 @@
           </div>
         </section>
 
-        <!-- PENGATURAN WARNA, GAMMA & ORIENTASI UMUM -->
-        <section class="bg-cyber-card border border-cyber-border rounded-2xl p-5 shadow-xl space-y-3">
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">🎨 Koreksi Warna & Orientasi Gambar</h2>
-          <div class="flex items-center justify-between">
-            <label class="text-xs text-slate-300">Koreksi Gamma LED (Ketajaman Kontras):</label>
-            <span id="gammaValLbl" class="text-xs font-mono font-bold text-cyber-cyan">2.0</span>
+        <!-- PENGATURAN KOREKSI GAMBAR, SKALA X/Y, POSISI GESER X/Y & WARNA -->
+        <section class="bg-cyber-card border border-cyber-border rounded-2xl p-5 shadow-xl space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <h2 class="text-xs font-bold uppercase tracking-wider text-cyber-cyan flex items-center gap-1.5">
+              <span>🎨 Koreksi Gambar, Skala X/Y & Geser Posisi</span>
+            </h2>
+            <button type="button" onclick="resetImageTransform()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-300 border border-slate-700 transition">
+              ↺ Reset Posisi & Skala
+            </button>
           </div>
-          <input type="range" id="gammaRange" min="1.0" max="2.8" step="0.1" value="2.0" oninput="document.getElementById('gammaValLbl').innerText=this.value; refreshPreviewAndStats()" class="w-full">
 
-          <div class="flex items-center justify-between">
-            <label class="text-xs text-slate-300">Master Brightness Boost:</label>
-            <span id="briValLbl" class="text-xs font-mono font-bold text-cyber-cyan">100%</span>
+          <!-- Kontrol Skala X & Y (Bisa Kunci Bareng atau Pisah Masing-Masing) -->
+          <div class="bg-[#0c1018] border border-slate-800/90 rounded-xl p-3.5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-white">🔍 Skala Ukuran Materi (Zoom X & Y)</span>
+              <label class="flex items-center gap-1.5 text-[11px] font-semibold text-cyber-green cursor-pointer select-none">
+                <input type="checkbox" id="chkLockScaleXY" checked onchange="onToggleLockScale()" class="rounded accent-cyber-green">
+                <span>🔗 Kunci Skala X & Y Bareng</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-400">Skala X (Lebar):</span>
+                  <span id="scaleXValLbl" class="font-mono font-bold text-cyber-cyan">100%</span>
+                </div>
+                <input type="range" id="scaleXRange" min="15" max="300" step="1" value="100" oninput="handleScaleChange('x', this.value)" class="w-full">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-400">Skala Y (Tinggi):</span>
+                  <span id="scaleYValLbl" class="font-mono font-bold text-cyber-cyan">100%</span>
+                </div>
+                <input type="range" id="scaleYRange" min="15" max="300" step="1" value="100" oninput="handleScaleChange('y', this.value)" class="w-full">
+              </div>
+            </div>
+
+            <!-- Kontrol Geser Posisi Materi X & Y (Pan / Offset) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-400">↔️ Geser X (Kiri/Kanan):</span>
+                  <span id="offsetXValLbl" class="font-mono font-bold text-purple-300">0%</span>
+                </div>
+                <input type="range" id="offsetXRange" min="-100" max="100" step="1" value="0" oninput="handleOffsetChange()" class="w-full">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-[11px] mb-1">
+                  <span class="text-slate-400">↕️ Geser Y (Atas/Bawah):</span>
+                  <span id="offsetYValLbl" class="font-mono font-bold text-purple-300">0%</span>
+                </div>
+                <input type="range" id="offsetYRange" min="-100" max="100" step="1" value="0" oninput="handleOffsetChange()" class="w-full">
+              </div>
+            </div>
           </div>
-          <input type="range" id="briRange" min="40" max="150" step="5" value="100" oninput="document.getElementById('briValLbl').innerText=this.value+'%'; refreshPreviewAndStats()" class="w-full">
+
+          <!-- Koreksi Gamma & Brightness -->
+          <div class="space-y-2.5 pt-1">
+            <div class="flex items-center justify-between">
+              <label class="text-xs text-slate-300">Koreksi Gamma LED (Ketajaman Kontras):</label>
+              <span id="gammaValLbl" class="text-xs font-mono font-bold text-cyber-cyan">2.0</span>
+            </div>
+            <input type="range" id="gammaRange" min="1.0" max="2.8" step="0.1" value="2.0" oninput="document.getElementById('gammaValLbl').innerText=this.value; refreshPreviewAndStats()" class="w-full">
+
+            <div class="flex items-center justify-between">
+              <label class="text-xs text-slate-300">Master Brightness Boost:</label>
+              <span id="briValLbl" class="text-xs font-mono font-bold text-cyber-cyan">100%</span>
+            </div>
+            <input type="range" id="briRange" min="40" max="150" step="5" value="100" oninput="document.getElementById('briValLbl').innerText=this.value+'%'; refreshPreviewAndStats()" class="w-full">
+          </div>
 
           <div class="grid grid-cols-2 gap-2 pt-1">
             <label class="flex items-center gap-2 bg-[#0d111a] border border-slate-800 px-3 py-2 rounded-xl cursor-pointer text-xs">
@@ -601,12 +665,16 @@
     const spinCanvas = document.getElementById('canvasSpinPreview');
     const spinCtx = spinCanvas.getContext('2d');
 
+    let isExportingBin = false; // Flag agar live video loop tidak berebut dengan proses render .bin
+
     // =========================================================================
-    // 1. PEMBANGUN TABEL GEOMETRI 1.352 LED PAYUNG (P1 + P2)
+    // 1. PEMBANGUN TABEL GEOMETRI 1.352 LED PAYUNG (LOCKED KE DEFAULT v0.0.7)
     // =========================================================================
     function rebuildUmbrellaGeometry() {
-      const ringOrder = document.getElementById('umbrellaRingOrder').value; // 'p1_in_p2_out' | 'p1_out_p2_in'
-      const wiringMode = document.getElementById('umbrellaWiringMode').value; // 'zigzag' | 'cw' | 'ccw'
+      // Geometri Payung dikunci permanen sesuai spesifikasi hardware Firmware v0.0.7:
+      // - Proyeksi: 2D Polar Canopy
+      // - Urutan Cincin: P1 (Baris 1-23 Dalam) -> P2 (Baris 24-33 Luar)
+      // - Arah Kabel per Baris: Zigzag / Serpentine
       umbrellaLedCoords = [];
 
       const totalRows = UMBRELLA_ALL_ROWS.length; // 33 baris
@@ -614,32 +682,18 @@
         const countInRow = UMBRELLA_ALL_ROWS[r];
         const isP2 = (r >= UMBRELLA_P1_ROWS.length);
 
-        // Hitung radius cincin (0.08 di puncak dalam s/d 0.96 di tepi luar payung)
-        let ringPosIndex = r;
-        if (ringOrder === 'p1_out_p2_in') {
-          ringPosIndex = (totalRows - 1) - r;
-        }
-        const radiusNorm = 0.08 + (ringPosIndex / (totalRows - 1)) * 0.88;
-
-        // Tentukan arah putaran kabel pada baris ke-r
-        let reverseRow = false;
-        if (wiringMode === 'zigzag') {
-          reverseRow = (r % 2 === 1);
-        } else if (wiringMode === 'ccw') {
-          reverseRow = true;
-        }
+        const radiusNorm = 0.08 + (r / (totalRows - 1)) * 0.88;
+        const reverseRow = (r % 2 === 1); // Zigzag / Serpentine
 
         for (let i = 0; i < countInRow; i++) {
           const effectiveIdx = reverseRow ? (countInRow - 1 - i) : i;
           const angleRad = (effectiveIdx / countInRow) * Math.PI * 2.0 - (Math.PI / 2.0);
 
-          // Koordinat Polar pada kanvas lingkaran (-1..+1 -> 0..1)
           const polarX = 0.5 + 0.5 * radiusNorm * Math.cos(angleRad);
           const polarY = 0.5 + 0.5 * radiusNorm * Math.sin(angleRad);
 
-          // Koordinat Matrix Silinder (0..1)
           const matrixX = effectiveIdx / Math.max(1, countInRow - 1);
-          const matrixY = ringPosIndex / (totalRows - 1);
+          const matrixY = r / (totalRows - 1);
 
           umbrellaLedCoords.push({
             rowIdx: r,
@@ -654,6 +708,88 @@
           });
         }
       }
+    }
+
+    // =========================================================================
+    // KONTROL SKALA X/Y & GESER POSISI X/Y (TRANSFORMASI MATERI)
+    // =========================================================================
+    function onToggleLockScale() {
+      const locked = document.getElementById('chkLockScaleXY').checked;
+      if (locked) {
+        const sx = document.getElementById('scaleXRange').value;
+        document.getElementById('scaleYRange').value = sx;
+        document.getElementById('scaleYValLbl').innerText = sx + '%';
+        refreshPreviewAndStats();
+      }
+    }
+
+    function handleScaleChange(axis, val) {
+      const locked = document.getElementById('chkLockScaleXY').checked;
+      if (axis === 'x') {
+        document.getElementById('scaleXValLbl').innerText = val + '%';
+        if (locked) {
+          document.getElementById('scaleYRange').value = val;
+          document.getElementById('scaleYValLbl').innerText = val + '%';
+        }
+      } else {
+        document.getElementById('scaleYValLbl').innerText = val + '%';
+        if (locked) {
+          document.getElementById('scaleXRange').value = val;
+          document.getElementById('scaleXValLbl').innerText = val + '%';
+        }
+      }
+      refreshPreviewAndStats();
+    }
+
+    function handleOffsetChange() {
+      const ox = document.getElementById('offsetXRange').value;
+      const oy = document.getElementById('offsetYRange').value;
+      document.getElementById('offsetXValLbl').innerText = (ox > 0 ? '+' : '') + ox + '%';
+      document.getElementById('offsetYValLbl').innerText = (oy > 0 ? '+' : '') + oy + '%';
+      refreshPreviewAndStats();
+    }
+
+    function resetImageTransform() {
+      document.getElementById('scaleXRange').value = 100;
+      document.getElementById('scaleYRange').value = 100;
+      document.getElementById('scaleXValLbl').innerText = '100%';
+      document.getElementById('scaleYValLbl').innerText = '100%';
+      document.getElementById('offsetXRange').value = 0;
+      document.getElementById('offsetYRange').value = 0;
+      document.getElementById('offsetXValLbl').innerText = '0%';
+      document.getElementById('offsetYValLbl').innerText = '0%';
+      document.getElementById('chkFlipVert').checked = false;
+      document.getElementById('chkMirrorHoriz').checked = false;
+      refreshPreviewAndStats();
+      showToast('Skala X/Y dan posisi geser materi di-reset ke 100% (Tengah).');
+    }
+
+    /**
+     * Menggambar sourceElem (Image / Video / Generator) ke rawCanvas (240x240)
+     * dengan menerapkan Skala X, Skala Y, Geser X, dan Geser Y secara real-time.
+     */
+    function renderTransformedSourceToRawCanvas(sourceElem) {
+      if (!sourceElem) return;
+      const sz = 240;
+      if (rawCanvas.width !== sz || rawCanvas.height !== sz) {
+        rawCanvas.width = sz;
+        rawCanvas.height = sz;
+      }
+
+      const scaleX = (parseFloat(document.getElementById('scaleXRange').value) || 100) / 100.0;
+      const scaleY = (parseFloat(document.getElementById('scaleYRange').value) || 100) / 100.0;
+      const offsetX = ((parseFloat(document.getElementById('offsetXRange').value) || 0) / 100.0) * sz;
+      const offsetY = ((parseFloat(document.getElementById('offsetYRange').value) || 0) / 100.0) * sz;
+
+      rawCtx.fillStyle = '#000000';
+      rawCtx.fillRect(0, 0, sz, sz);
+
+      const drawW = sz * scaleX;
+      const drawH = sz * scaleY;
+      const drawX = (sz - drawW) / 2.0 + offsetX;
+      const drawY = (sz - drawH) / 2.0 + offsetY;
+
+      rawCtx.drawImage(sourceElem, drawX, drawY, drawW, drawH);
     }
 
     // =========================================================================
@@ -761,6 +897,8 @@
         btnUp.className = 'py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition';
         pPr.classList.remove('hidden');
         pUp.classList.add('hidden');
+        const vid = document.getElementById('hiddenVideo');
+        if (vid && !vid.paused) vid.pause();
         currentSourceType = 'preset';
         document.getElementById('mediaTypeBadge').innerText = 'Generator Preset';
         renderPresetToSource(0);
@@ -773,29 +911,32 @@
     function selectPreset(presetName) {
       activePresetName = presetName;
       currentSourceType = 'preset';
+      const vid = document.getElementById('hiddenVideo');
+      if (vid && !vid.paused) vid.pause();
       document.getElementById('mediaTypeBadge').innerText = 'Preset: ' + presetName;
       renderPresetToSource(0);
     }
 
     function renderPresetToSource(phaseAngleRad = 0) {
       const sz = 240;
-      rawCanvas.width = sz;
-      rawCanvas.height = sz;
+      const offPreset = document.createElement('canvas');
+      offPreset.width = sz;
+      offPreset.height = sz;
+      const pCtx = offPreset.getContext('2d');
       const cx = sz / 2, cy = sz / 2;
 
-      rawCtx.fillStyle = '#000000';
-      rawCtx.fillRect(0, 0, sz, sz);
+      pCtx.fillStyle = '#000000';
+      pCtx.fillRect(0, 0, sz, sz);
 
       const txt = (document.getElementById('presetTextInput').value || 'TRISUKA').toUpperCase();
       const accentCol = document.getElementById('presetColorInput').value || '#00e5ff';
 
-      rawCtx.save();
-      rawCtx.translate(cx, cy);
-      rawCtx.rotate(phaseAngleRad);
-      rawCtx.translate(-cx, -cy);
+      pCtx.save();
+      pCtx.translate(cx, cy);
+      pCtx.rotate(phaseAngleRad);
+      pCtx.translate(-cx, -cy);
 
       if (activePresetName === 'umbrellaMandala') {
-        // Pola Kelopak Mandala Payung Nusantara
         const petals = 12;
         const palette = [accentCol, '#ff1744', '#ffea00', '#00e676', '#d500f9'];
         for (let ring = 112; ring >= 18; ring -= 18) {
@@ -804,79 +945,101 @@
             const a = (p * Math.PI * 2) / petals + (ring * 0.02);
             const px = cx + Math.cos(a) * (ring * 0.72);
             const py = cy + Math.sin(a) * (ring * 0.72);
-            rawCtx.fillStyle = col;
-            rawCtx.beginPath();
-            rawCtx.arc(px, py, ring * 0.22, 0, Math.PI * 2);
-            rawCtx.fill();
+            pCtx.fillStyle = col;
+            pCtx.beginPath();
+            pCtx.arc(px, py, ring * 0.22, 0, Math.PI * 2);
+            pCtx.fill();
           }
         }
-        rawCtx.strokeStyle = '#ffffff';
-        rawCtx.lineWidth = 5;
-        rawCtx.beginPath();
-        rawCtx.arc(cx, cy, 108, 0, Math.PI * 2);
-        rawCtx.stroke();
+        pCtx.strokeStyle = '#ffffff';
+        pCtx.lineWidth = 5;
+        pCtx.beginPath();
+        pCtx.arc(cx, cy, 108, 0, Math.PI * 2);
+        pCtx.stroke();
 
       } else if (activePresetName === 'cyberLogo') {
-        rawCtx.strokeStyle = accentCol;
-        rawCtx.lineWidth = 12;
-        rawCtx.beginPath();
-        rawCtx.arc(cx, cy, 98, 0, Math.PI * 2);
-        rawCtx.stroke();
+        pCtx.strokeStyle = accentCol;
+        pCtx.lineWidth = 12;
+        pCtx.beginPath();
+        pCtx.arc(cx, cy, 98, 0, Math.PI * 2);
+        pCtx.stroke();
 
-        rawCtx.strokeStyle = '#d500f9';
-        rawCtx.lineWidth = 8;
-        rawCtx.beginPath();
-        rawCtx.arc(cx, cy, 66, 0, Math.PI * 2);
-        rawCtx.stroke();
+        pCtx.strokeStyle = '#d500f9';
+        pCtx.lineWidth = 8;
+        pCtx.beginPath();
+        pCtx.arc(cx, cy, 66, 0, Math.PI * 2);
+        pCtx.stroke();
 
         for (let i = 0; i < 8; i++) {
           const ang = (i * Math.PI) / 4;
-          rawCtx.strokeStyle = i % 2 === 0 ? '#00e676' : '#ffea00';
-          rawCtx.lineWidth = 7;
-          rawCtx.beginPath();
-          rawCtx.moveTo(cx + Math.cos(ang) * 20, cy + Math.sin(ang) * 20);
-          rawCtx.lineTo(cx + Math.cos(ang) * 94, cy + Math.sin(ang) * 94);
-          rawCtx.stroke();
+          pCtx.strokeStyle = i % 2 === 0 ? '#00e676' : '#ffea00';
+          pCtx.lineWidth = 7;
+          pCtx.beginPath();
+          pCtx.moveTo(cx + Math.cos(ang) * 20, cy + Math.sin(ang) * 20);
+          pCtx.lineTo(cx + Math.cos(ang) * 94, cy + Math.sin(ang) * 94);
+          pCtx.stroke();
         }
       } else if (activePresetName === 'neonGrid') {
         const colors = ['#ff1744', '#ff9100', '#ffea00', '#00e676', '#00e5ff', '#d500f9'];
         for (let i = 0; i < 12; i++) {
-          rawCtx.fillStyle = colors[i % colors.length];
-          rawCtx.beginPath();
-          rawCtx.moveTo(cx, cy);
-          rawCtx.arc(cx, cy, 116, (i * Math.PI) / 6, ((i + 0.82) * Math.PI) / 6);
-          rawCtx.closePath();
-          rawCtx.fill();
+          pCtx.fillStyle = colors[i % colors.length];
+          pCtx.beginPath();
+          pCtx.moveTo(cx, cy);
+          pCtx.arc(cx, cy, 116, (i * Math.PI) / 6, ((i + 0.82) * Math.PI) / 6);
+          pCtx.closePath();
+          pCtx.fill();
         }
       } else if (activePresetName === 'customText') {
-        rawCtx.strokeStyle = accentCol;
-        rawCtx.lineWidth = 8;
-        rawCtx.strokeRect(10, 22, sz - 20, sz - 44);
+        pCtx.strokeStyle = accentCol;
+        pCtx.lineWidth = 8;
+        pCtx.strokeRect(10, 22, sz - 20, sz - 44);
       }
 
-      rawCtx.restore();
+      pCtx.restore();
 
       if (activePresetName === 'customText' || activePresetName === 'cyberLogo') {
-        rawCtx.fillStyle = 'rgba(0, 0, 0, 0.78)';
-        rawCtx.fillRect(12, cy - 22, sz - 24, 44);
-        rawCtx.fillStyle = '#ffffff';
-        rawCtx.font = '900 32px Inter, sans-serif';
-        rawCtx.textAlign = 'center';
-        rawCtx.textBaseline = 'middle';
-        rawCtx.fillText(txt, cx, cy);
+        pCtx.fillStyle = 'rgba(0, 0, 0, 0.78)';
+        pCtx.fillRect(12, cy - 22, sz - 24, 44);
+        pCtx.fillStyle = '#ffffff';
+        pCtx.font = '900 32px Inter, sans-serif';
+        pCtx.textAlign = 'center';
+        pCtx.textBaseline = 'middle';
+        pCtx.fillText(txt, cx, cy);
       }
 
+      uploadedImageObj = offPreset;
+      renderTransformedSourceToRawCanvas(offPreset);
       document.getElementById('rawSourceDim').innerText = '240 × 240 px (Generator)';
       refreshPreviewAndStats();
     }
 
     // =========================================================================
-    // 5. HANDLER UPLOAD GAMBAR, VIDEO & ANTREAN BATCH
+    // 5. HANDLER UPLOAD GAMBAR, LIVE VIDEO MP4 & ANTREAN BATCH
     // =========================================================================
     function clearBatchQueue() {
       batchFilesQueue = [];
       document.getElementById('batchQueueBox').classList.add('hidden');
       document.getElementById('fileNameLabel').innerText = 'Antrean dibersihkan';
+    }
+
+    function toggleUploadedVideoPlayback() {
+      const vid = document.getElementById('hiddenVideo');
+      if (!vid || currentSourceType !== 'video') return;
+      if (vid.paused) {
+        vid.play();
+        document.getElementById('btnVideoPlayPause').innerHTML = '<span>⏸️</span> <span id="lblVideoPlayPause">Pause Video</span>';
+      } else {
+        vid.pause();
+        document.getElementById('btnVideoPlayPause').innerHTML = '<span>▶️</span> <span id="lblVideoPlayPause">Play Video</span>';
+      }
+    }
+
+    function seekUploadedVideo(sliderVal) {
+      const vid = document.getElementById('hiddenVideo');
+      if (!vid || !vid.duration) return;
+      vid.currentTime = (sliderVal / 1000.0) * vid.duration;
+      renderTransformedSourceToRawCanvas(vid);
+      refreshPreviewAndStats();
     }
 
     function handleFileUpload(e) {
@@ -902,29 +1065,36 @@
       const cleanBase = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
       document.getElementById('outFilename').value = cleanBase + '.bin';
 
+      const vidCtrlBox = document.getElementById('videoLiveControlBox');
+
       if (file.type.startsWith('video/')) {
         currentSourceType = 'video';
         uploadedVideoFile = file;
-        document.getElementById('mediaTypeBadge').innerText = 'Video MP4/WebM';
+        document.getElementById('mediaTypeBadge').innerText = 'Video MP4/WebM (Live)';
+        vidCtrlBox.classList.remove('hidden');
 
         const vid = document.getElementById('hiddenVideo');
         vid.src = URL.createObjectURL(file);
+        vid.loop = true;
+        vid.muted = true;
+        vid.playsInline = true;
+
         vid.onloadedmetadata = () => {
           const fps = parseInt(document.getElementById('videoFpsSelect').value) || 25;
           const totalEst = Math.max(1, Math.ceil(vid.duration * fps));
           document.getElementById('maxVideoFrames').value = Math.min(450, totalEst);
           document.getElementById('videoDurationInfo').innerText = `${vid.duration.toFixed(1)} dtk (${totalEst} frm)`;
-          vid.currentTime = Math.min(0.2, vid.duration / 4);
-        };
-        vid.onseeked = () => {
-          rawCanvas.width = 240;
-          rawCanvas.height = 240;
-          rawCtx.drawImage(vid, 0, 0, 240, 240);
-          document.getElementById('rawSourceDim').innerText = `${vid.videoWidth}×${vid.videoHeight} (Video)`;
-          refreshPreviewAndStats();
+          document.getElementById('rawSourceDim').innerText = `${vid.videoWidth}×${vid.videoHeight} (Live Video)`;
+          updateSizeEstimation();
+          vid.play().then(() => {
+            document.getElementById('btnVideoPlayPause').innerHTML = '<span>⏸️</span> <span id="lblVideoPlayPause">Pause Video</span>';
+          }).catch(() => {});
         };
       } else {
         currentSourceType = 'image';
+        vidCtrlBox.classList.add('hidden');
+        const vid = document.getElementById('hiddenVideo');
+        if (vid && !vid.paused) vid.pause();
         document.getElementById('mediaTypeBadge').innerText = 'Gambar Statis';
 
         const reader = new FileReader();
@@ -932,10 +1102,7 @@
           const img = new Image();
           img.onload = () => {
             uploadedImageObj = img;
-            rawCanvas.width = 240;
-            rawCanvas.height = 240;
-            rawCtx.clearRect(0, 0, 240, 240);
-            rawCtx.drawImage(img, 0, 0, 240, 240);
+            renderTransformedSourceToRawCanvas(img);
             document.getElementById('rawSourceDim').innerText = `${img.width} × ${img.height} px`;
             refreshPreviewAndStats();
           };
@@ -1077,7 +1244,7 @@
       const mode = document.getElementById('binModeSelect').value;
       const ledCount = Math.max(16, Math.min(300, parseInt(document.getElementById('ledCountInput').value) || 58));
       const colsPerMode = parseInt(document.getElementById('colsWidthSelect').value) || 120;
-      const umbrellaMapMode = document.getElementById('umbrellaMapMode').value;
+      const umbrellaMapMode = 'polar'; // Dikunci permanen ke 2D Polar Canopy sesuai default Firmware v0.0.7
       const gamma = parseFloat(document.getElementById('gammaRange').value) || 2.0;
       const briScale = (parseFloat(document.getElementById('briRange').value) || 100) / 100.0;
       const flipVert = document.getElementById('chkFlipVert').checked;
@@ -1086,6 +1253,16 @@
     }
 
     function refreshPreviewAndStats() {
+      // Terapkan transformasi Skala X/Y & Geser X/Y pada sumber aktif sebelum ekstraksi LED
+      if (!isExportingBin) {
+        if (currentSourceType === 'video') {
+          const vid = document.getElementById('hiddenVideo');
+          if (vid && vid.readyState >= 2) renderTransformedSourceToRawCanvas(vid);
+        } else if (uploadedImageObj) {
+          renderTransformedSourceToRawCanvas(uploadedImageObj);
+        }
+      }
+
       const cfg = getSettings();
       if (activePropDevice === 'umbrella') {
         currentUmbrellaFrameData = extractUmbrellaFrameBytes(
@@ -1180,7 +1357,6 @@
 
       const showGuides = document.getElementById('chkShowRingGuides').checked;
       if (showGuides) {
-        // Garis batas antara P1 (23 baris) dan P2 (10 baris)
         umbrellaCtx.strokeStyle = 'rgba(0, 229, 255, 0.16)';
         umbrellaCtx.lineWidth = 1;
         umbrellaCtx.beginPath();
@@ -1193,8 +1369,10 @@
         umbrellaCtx.stroke();
       }
 
-      // Rotasi simulasi halus saat animasi aktif
-      const rotOffset = simActive ? (simStepCounter * 0.025) : 0;
+      // Jika sumber adalah Video MP4, jangan putar kanvas secara paksa agar gerakan asli video terlihat jelas!
+      const rotOffset = (simActive && currentSourceType !== 'video' && document.getElementById('chkAnimatePreset').checked)
+        ? (simStepCounter * 0.025)
+        : 0;
 
       for (let i = 0; i < UMBRELLA_TOTAL_LEDS; i++) {
         const pt = umbrellaLedCoords[i];
@@ -1216,7 +1394,6 @@
         umbrellaCtx.fill();
       }
 
-      // Titik poros tengah payung
       umbrellaCtx.fillStyle = '#ffffff';
       umbrellaCtx.beginPath();
       umbrellaCtx.arc(cx, cy, 4, 0, Math.PI * 2);
@@ -1304,8 +1481,33 @@
     }
 
     function animateSimulatorLoop() {
-      if (simActive) {
+      if (simActive && !isExportingBin) {
         simStepCounter = (simStepCounter + 1) % 3600;
+
+        // Jika sumber adalah Video MP4/WebM dan sedang diputar, ambil frame video terbaru secara real-time!
+        if (currentSourceType === 'video') {
+          const vid = document.getElementById('hiddenVideo');
+          if (vid && vid.readyState >= 2) {
+            renderTransformedSourceToRawCanvas(vid);
+            const cfg = getSettings();
+            if (activePropDevice === 'umbrella') {
+              currentUmbrellaFrameData = extractUmbrellaFrameBytes(
+                rawCanvas, cfg.umbrellaMapMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz, 0
+              );
+            } else {
+              const { orbitBytes, spinBytes } = extractFramePovBuffers(
+                rawCanvas, cfg.ledCount, cfg.colsPerMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz
+              );
+              currentOrbitColsData = orbitBytes;
+              currentSpinColsData = spinBytes;
+            }
+            if (vid.duration > 0) {
+              document.getElementById('videoTimeCounter').innerText = `${vid.currentTime.toFixed(1)}s / ${vid.duration.toFixed(1)}s`;
+              document.getElementById('videoTimelineSeek').value = Math.round((vid.currentTime / vid.duration) * 1000);
+            }
+          }
+        }
+
         drawSimulatorFrame();
       }
       requestAnimationFrame(animateSimulatorLoop);
@@ -1324,106 +1526,117 @@
       const pTxt = document.getElementById('convProgressText');
       const pPct = document.getElementById('convProgressPct');
 
-      // A. JIKA MODE PAYUNG LED (1.352 LED = 4.056 Bytes/Frame)
-      if (activePropDevice === 'umbrella') {
-        if (currentSourceType === 'video') {
-          const vid = document.getElementById('hiddenVideo');
-          const totalFrames = Math.max(1, Math.min(maxF, Math.ceil((vid.duration || 1) * fps)));
-          const outBuffer = new Uint8Array(totalFrames * UMBRELLA_FRAME_BYTES);
-          pWrap.classList.remove('hidden');
-
-          for (let f = 0; f < totalFrames; f++) {
-            vid.currentTime = Math.min(vid.duration - 0.01, f / fps);
-            await new Promise(res => {
-              const onSeek = () => { vid.removeEventListener('seeked', onSeek); res(); };
-              vid.addEventListener('seeked', onSeek);
-            });
-            rawCtx.drawImage(vid, 0, 0, 240, 240);
-            const frmBytes = extractUmbrellaFrameBytes(rawCanvas, cfg.umbrellaMapMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz, 0);
-            outBuffer.set(frmBytes, f * UMBRELLA_FRAME_BYTES);
-
-            const pct = Math.round(((f + 1) / totalFrames) * 100);
-            pBar.style.width = pct + '%';
-            pPct.innerText = pct + '%';
-            pTxt.innerText = `Render Payung Frame ${f + 1} / ${totalFrames}...`;
-          }
-          setTimeout(() => pWrap.classList.add('hidden'), 1000);
-          return outBuffer;
-        } else {
-          // Gambar Statis atau Generator Berputar
-          const animateRot = document.getElementById('chkAnimatePreset').checked;
-          const totalFrames = animateRot ? maxF : 1;
-          const outBuffer = new Uint8Array(totalFrames * UMBRELLA_FRAME_BYTES);
-          pWrap.classList.remove('hidden');
-
-          for (let f = 0; f < totalFrames; f++) {
-            const rotAngle = animateRot ? ((f / totalFrames) * Math.PI * 2.0) : 0;
-            const frmBytes = extractUmbrellaFrameBytes(rawCanvas, cfg.umbrellaMapMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz, rotAngle);
-            outBuffer.set(frmBytes, f * UMBRELLA_FRAME_BYTES);
-
-            const pct = Math.round(((f + 1) / totalFrames) * 100);
-            pBar.style.width = pct + '%';
-            pPct.innerText = pct + '%';
-            pTxt.innerText = `Render Payung Frame ${f + 1} / ${totalFrames}...`;
-            if (f % 10 === 0) await new Promise(r => setTimeout(r, 1));
-          }
-          setTimeout(() => pWrap.classList.add('hidden'), 1000);
-          return outBuffer;
-        }
-      }
-
-      // B. JIKA MODE LEVIWAND POV (58 LED)
-      const sliceBytes = cfg.ledCount * 3;
-      const singleModeByteLen = cfg.colsPerMode * sliceBytes;
-      const frameByteLen = (cfg.mode === 'dual') ? (singleModeByteLen * 2) : singleModeByteLen;
-
-      if (currentSourceType !== 'video') {
-        const { orbitBytes, spinBytes } = extractFramePovBuffers(
-          rawCanvas, cfg.ledCount, cfg.colsPerMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz
-        );
-        const out = new Uint8Array(frameByteLen);
-        if (cfg.mode === 'dual') {
-          out.set(orbitBytes, 0);
-          out.set(spinBytes, singleModeByteLen);
-        } else if (cfg.mode === 'orbit') {
-          out.set(orbitBytes, 0);
-        } else {
-          out.set(spinBytes, 0);
-        }
-        return out;
-      }
-
+      isExportingBin = true;
       const vid = document.getElementById('hiddenVideo');
-      const totalFrames = Math.max(1, Math.min(maxF, Math.ceil((vid.duration || 1) * fps)));
-      const outBuffer = new Uint8Array(totalFrames * frameByteLen);
-      pWrap.classList.remove('hidden');
+      const wasVideoPlaying = (currentSourceType === 'video' && vid && !vid.paused);
+      if (wasVideoPlaying) vid.pause();
 
-      for (let f = 0; f < totalFrames; f++) {
-        vid.currentTime = Math.min(vid.duration - 0.01, f / fps);
-        await new Promise(res => {
-          const onSeek = () => { vid.removeEventListener('seeked', onSeek); res(); };
-          vid.addEventListener('seeked', onSeek);
-        });
-        rawCtx.drawImage(vid, 0, 0, 240, 240);
-        const { orbitBytes, spinBytes } = extractFramePovBuffers(
-          rawCanvas, cfg.ledCount, cfg.colsPerMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz
-        );
-        const offset = f * frameByteLen;
-        if (cfg.mode === 'dual') {
-          outBuffer.set(orbitBytes, offset);
-          outBuffer.set(spinBytes, offset + singleModeByteLen);
-        } else if (cfg.mode === 'orbit') {
-          outBuffer.set(orbitBytes, offset);
-        } else {
-          outBuffer.set(spinBytes, offset);
+      try {
+        // A. JIKA MODE PAYUNG LED (1.352 LED = 4.056 Bytes/Frame)
+        if (activePropDevice === 'umbrella') {
+          if (currentSourceType === 'video') {
+            const totalFrames = Math.max(1, Math.min(maxF, Math.ceil((vid.duration || 1) * fps)));
+            const outBuffer = new Uint8Array(totalFrames * UMBRELLA_FRAME_BYTES);
+            pWrap.classList.remove('hidden');
+
+            for (let f = 0; f < totalFrames; f++) {
+              vid.currentTime = Math.min(vid.duration - 0.01, f / fps);
+              await new Promise(res => {
+                const onSeek = () => { vid.removeEventListener('seeked', onSeek); res(); };
+                vid.addEventListener('seeked', onSeek);
+              });
+              renderTransformedSourceToRawCanvas(vid);
+              const frmBytes = extractUmbrellaFrameBytes(rawCanvas, cfg.umbrellaMapMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz, 0);
+              outBuffer.set(frmBytes, f * UMBRELLA_FRAME_BYTES);
+
+              const pct = Math.round(((f + 1) / totalFrames) * 100);
+              pBar.style.width = pct + '%';
+              pPct.innerText = pct + '%';
+              pTxt.innerText = `Render Payung Frame ${f + 1} / ${totalFrames}...`;
+            }
+            setTimeout(() => pWrap.classList.add('hidden'), 1000);
+            return outBuffer;
+          } else {
+            renderTransformedSourceToRawCanvas(uploadedImageObj);
+            const animateRot = document.getElementById('chkAnimatePreset').checked;
+            const totalFrames = animateRot ? maxF : 1;
+            const outBuffer = new Uint8Array(totalFrames * UMBRELLA_FRAME_BYTES);
+            pWrap.classList.remove('hidden');
+
+            for (let f = 0; f < totalFrames; f++) {
+              const rotAngle = animateRot ? ((f / totalFrames) * Math.PI * 2.0) : 0;
+              const frmBytes = extractUmbrellaFrameBytes(rawCanvas, cfg.umbrellaMapMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz, rotAngle);
+              outBuffer.set(frmBytes, f * UMBRELLA_FRAME_BYTES);
+
+              const pct = Math.round(((f + 1) / totalFrames) * 100);
+              pBar.style.width = pct + '%';
+              pPct.innerText = pct + '%';
+              pTxt.innerText = `Render Payung Frame ${f + 1} / ${totalFrames}...`;
+              if (f % 10 === 0) await new Promise(r => setTimeout(r, 1));
+            }
+            setTimeout(() => pWrap.classList.add('hidden'), 1000);
+            return outBuffer;
+          }
         }
-        const pct = Math.round(((f + 1) / totalFrames) * 100);
-        pBar.style.width = pct + '%';
-        pPct.innerText = pct + '%';
-        pTxt.innerText = `Render Leviwand Frame ${f + 1} / ${totalFrames}...`;
+
+        // B. JIKA MODE LEVIWAND POV (58 LED)
+        const sliceBytes = cfg.ledCount * 3;
+        const singleModeByteLen = cfg.colsPerMode * sliceBytes;
+        const frameByteLen = (cfg.mode === 'dual') ? (singleModeByteLen * 2) : singleModeByteLen;
+
+        if (currentSourceType !== 'video') {
+          renderTransformedSourceToRawCanvas(uploadedImageObj);
+          const { orbitBytes, spinBytes } = extractFramePovBuffers(
+            rawCanvas, cfg.ledCount, cfg.colsPerMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz
+          );
+          const out = new Uint8Array(frameByteLen);
+          if (cfg.mode === 'dual') {
+            out.set(orbitBytes, 0);
+            out.set(spinBytes, singleModeByteLen);
+          } else if (cfg.mode === 'orbit') {
+            out.set(orbitBytes, 0);
+          } else {
+            out.set(spinBytes, 0);
+          }
+          return out;
+        }
+
+        const totalFrames = Math.max(1, Math.min(maxF, Math.ceil((vid.duration || 1) * fps)));
+        const outBuffer = new Uint8Array(totalFrames * frameByteLen);
+        pWrap.classList.remove('hidden');
+
+        for (let f = 0; f < totalFrames; f++) {
+          vid.currentTime = Math.min(vid.duration - 0.01, f / fps);
+          await new Promise(res => {
+            const onSeek = () => { vid.removeEventListener('seeked', onSeek); res(); };
+            vid.addEventListener('seeked', onSeek);
+          });
+          renderTransformedSourceToRawCanvas(vid);
+          const { orbitBytes, spinBytes } = extractFramePovBuffers(
+            rawCanvas, cfg.ledCount, cfg.colsPerMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz
+          );
+          const offset = f * frameByteLen;
+          if (cfg.mode === 'dual') {
+            outBuffer.set(orbitBytes, offset);
+            outBuffer.set(spinBytes, offset + singleModeByteLen);
+          } else if (cfg.mode === 'orbit') {
+            outBuffer.set(orbitBytes, offset);
+          } else {
+            outBuffer.set(spinBytes, offset);
+          }
+          const pct = Math.round(((f + 1) / totalFrames) * 100);
+          pBar.style.width = pct + '%';
+          pPct.innerText = pct + '%';
+          pTxt.innerText = `Render Leviwand Frame ${f + 1} / ${totalFrames}...`;
+        }
+        setTimeout(() => pWrap.classList.add('hidden'), 1000);
+        return outBuffer;
+      } finally {
+        isExportingBin = false;
+        if (wasVideoPlaying && vid) {
+          vid.play().catch(() => {});
+        }
       }
-      setTimeout(() => pWrap.classList.add('hidden'), 1000);
-      return outBuffer;
     }
 
     async function generateAndDownloadBin() {
