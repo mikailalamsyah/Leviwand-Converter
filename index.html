@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Trisuka Leviwand POV Studio — 58-LED Smart Dual-Mode .bin Converter</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts Inter & JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            cyber: {
+              bg: '#090b10',
+              card: '#121620',
+              border: '#1f2637',
+              cyan: '#00e5ff',
+              green: '#00e676',
+              purple: '#d500f9',
+              orange: '#ff9100'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #090b10;
+      color: #f0f4f8;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(0, 229, 255, 0.06) 0%, transparent 35%),
+        radial-gradient(circle at 85% 80%, rgba(213, 0, 249, 0.06) 0%, transparent 35%);
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0d1017; }
+    ::-webkit-scrollbar-thumb { background: #263044; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #00e5ff; }
+    .glow-cyan { box-shadow: 0 0 20px rgba(0, 229, 255, 0.25); }
+    .glow-green { box-shadow: 0 0 20px rgba(0, 230, 118, 0.3); }
+    .glow-purple { box-shadow: 0 0 20px rgba(213, 0, 249, 0.25); }
+    input[type="range"] { accent-color: #00e5ff; }
+    canvas { image-rendering: pixelated; }
+  </style>
+</head>
+<body class="min-h-screen font-sans antialiased selection:bg-cyber-cyan selection:text-black pb-16">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-cyber-green text-black font-bold px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2 text-sm">
+    <span>⚡</span>
+    <span id="toastMsg">Berhasil!</span>
+  </div>
+
+  <!-- Top Navbar -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-[#090b10]/85 border-b border-cyber-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyber-cyan via-blue-600 to-cyber-purple flex items-center justify-center shadow-lg shadow-cyber-cyan/20 font-extrabold text-black text-xl">
+          🪄
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-white">TRISUKA LEVIWAND POV STUDIO</h1>
+            <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded-full bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-bold">58-LED Dual-Mode</span>
+          </div>
+          <p class="text-xs text-slate-400">Smart Converter Gambar & Video ke <code class="text-cyber-green font-mono">.bin</code> (Mode 1 Orbit Portrait + Mode 2 Spin 360°)</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button onclick="openGithubModal()" class="px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs sm:text-sm font-semibold text-cyber-cyan border border-cyber-cyan/30 flex items-center gap-2 transition">
+          <span>🌐</span>
+          <span>Cara Online Gratis (GitHub Mirror)</span>
+        </button>
+        <button onclick="downloadSelfHtml()" class="px-3.5 py-2 rounded-xl bg-cyber-purple/20 hover:bg-cyber-purple/30 text-xs sm:text-sm font-semibold text-purple-300 border border-cyber-purple/40 flex items-center gap-1.5 transition" title="Simpan halaman web converter ini untuk di-upload ke GitHub">
+          <span>💾</span>
+          <span class="hidden sm:inline">Unduh Web (.html)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- KOLOM KIRI: INPUT MEDIA & KONFIGURASI POV (5 Kolom) -->
+      <div class="lg:col-span-5 space-y-5">
+
+        <!-- 1. Card Sumber Media (Upload / Generator Built-in) -->
+        <section class="bg-cyber-card border border-cyber-border rounded-2xl p-5 shadow-xl">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-cyber-cyan flex items-center gap-2">
+              <span>1. Sumber Gambar / Video</span>
+            </h2>
+            <span id="mediaTypeBadge" class="text-[11px] font-mono bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-md">Generator Preset</span>
+          </div>
+
+          <!-- Tabs Upload vs Preset -->
+          <div class="grid grid-cols-2 gap-2 p-1 bg-[#0b0e15] rounded-xl mb-4 border border-slate-800">
+            <button id="tabBtnUpload" onclick="switchSourceTab('upload')" class="py-2 text-xs font-bold rounded-lg bg-cyber-cyan text-black transition">
+              📁 Upload File (Gambar/MP4)
+            </button>
+            <button id="tabBtnPreset" onclick="switchSourceTab('preset')" class="py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">
+              ✨ Generator Efek & Teks
+            </button>
+          </div>
+
+          <!-- Panel Upload File -->
+          <div id="panelUpload" class="space-y-3">
+            <label for="mediaInput" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 hover:border-cyber-cyan rounded-xl cursor-pointer bg-[#0d111a] hover:bg-slate-900/60 transition p-4 text-center">
+              <div class="text-2xl mb-1">🖼️ 🎬</div>
+              <p class="text-xs font-semibold text-slate-200">Klik atau Tarik File Gambar (<span class="text-cyber-cyan">.PNG, .JPG, .WEBP</span>) atau Video (<span class="text-cyber-green">.MP4, .WEBM</span>)</p>
+              <p id="fileNameLabel" class="text-[11px] text-slate-400 mt-1 font-mono truncate max-w-full">Belum ada file dipilih (Menggunakan Preset Demo)</p>
+              <input id="mediaInput" type="file" accept="image/*,video/mp4,video/webm,video/quicktime" class="hidden" onchange="handleFileUpload(event)">
+            </label>
+
+            <!-- Pengaturan Khusus Video (Muncul bila upload video) -->
+            <div id="videoConfigBox" class="hidden bg-[#0c1018] border border-slate-800 rounded-xl p-3.5 space-y-3">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-cyber-green font-semibold">🎬 Pengaturan Ekstraksi Video</span>
+                <span id="videoDurationInfo" class="font-mono text-slate-400">0.0 dtk</span>
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-[11px] text-slate-400 block mb-1">FPS Video Target</label>
+                  <select id="videoFpsSelect" onchange="updateSizeEstimation()" class="w-full bg-[#141926] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                    <option value="15">15 FPS (Hemat Memori)</option>
+                    <option value="20">20 FPS</option>
+                    <option value="25" selected>25 FPS (Default Leviwand)</option>
+                    <option value="30">30 FPS (Halus)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-[11px] text-slate-400 block mb-1">Maks. Frame Diambil</label>
+                  <input type="number" id="maxVideoFrames" value="60" min="1" max="300" onchange="updateSizeEstimation()" class="w-full bg-[#141926] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel Preset Built-in Generator -->
+          <div id="panelPreset" class="hidden space-y-3">
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="selectPreset('cyberLogo')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-left flex items-center gap-2">
+                <span>⚡</span> <span>Logo Cyber & Cincin</span>
+              </button>
+              <button onclick="selectPreset('customText')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-left flex items-center gap-2">
+                <span>🔤</span> <span>Teks / Nama Custom</span>
+              </button>
+              <button onclick="selectPreset('firePortal')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-left flex items-center gap-2">
+                <span>🔥</span> <span>Api & Mandala</span>
+              </button>
+              <button onclick="selectPreset('neonGrid')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-left flex items-center gap-2">
+                <span>🌈</span> <span>Rainbow Vortex 360°</span>
+              </button>
+            </div>
+            <div id="customTextWrap" class="pt-1">
+              <label class="text-[11px] text-slate-400 block mb-1">Teks Tampilan Udara (POV Text):</label>
+              <div class="flex gap-2">
+                <input type="text" id="presetTextInput" value="TRISUKA" maxlength="18" oninput="renderPresetToSource()" class="flex-1 bg-[#0d111a] border border-slate-700 rounded-lg px-3 py-1.5 text-xs font-bold text-cyber-cyan uppercase tracking-wider">
+                <input type="color" id="presetColorInput" value="#00e5ff" oninput="renderPresetToSource()" class="w-10 h-8 rounded-lg bg-transparent border border-slate-700 cursor-pointer">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. Card Pengaturan Smart Dual-Mode & Ukuran LED -->
+        <section class="bg-cyber-card border border-cyber-border rounded-2xl p-5 shadow-xl space-y-4">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-cyber-green flex items-center gap-2">
+            <span>2. Konfigurasi Smart Dual-Mode & LED</span>
+          </h2>
+
+          <div>
+            <label class="text-xs font-semibold text-slate-300 block mb-1.5">Mode Struktur File <code class="text-cyber-cyan">.bin</code>:</label>
+            <select id="binModeSelect" onchange="refreshPreviewAndStats()" class="w-full bg-[#0d111a] border border-cyber-cyan/50 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-white focus:outline-none focus:border-cyber-cyan">
+              <option value="dual" selected>🧠 Smart Dual-Mode Hybrid (Paket A Orbit + Paket B Spin 360°)</option>
+              <option value="orbit">🎯 Single Mode 1: Portrait Circle Orbit Saja (Cartesian Tegak)</option>
+              <option value="spin">🔄 Single Mode 2: 360° Spinning Saja (Polar Radial Melingkar)</option>
+            </select>
+            <p id="modeHelperText" class="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
+              💡 <b>Rekomendasi Terbaik:</b> Menyimpan 2 proyeksi sekaligus dalam 1 file <code class="text-cyber-cyan">.bin</code>. Saat leviwand tegak mengitari tubuh otomatis tampil Paket A, dan saat diputar 360° otomatis berubah ke Paket B tanpa perlu sentuh Web UI!
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs font-semibold text-slate-300 block mb-1">Jumlah Pixel LED:</label>
+              <input type="number" id="ledCountInput" value="58" min="16" max="300" onchange="refreshPreviewAndStats()" class="w-full bg-[#0d111a] border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-cyber-cyan">
+            </div>
+            <div>
+              <label class="text-xs font-semibold text-slate-300 block mb-1">Lebar Kolom / Mode:</label>
+              <select id="colsWidthSelect" onchange="refreshPreviewAndStats()" class="w-full bg-[#0d111a] border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono font-bold text-white">
+                <option value="58">58 Kolom (1:1)</option>
+                <option value="90">90 Kolom (Ringkas)</option>
+                <option value="100">100 Kolom</option>
+                <option value="120" selected>120 Kolom (Standar Optimal)</option>
+                <option value="180">180 Kolom (Lebar)</option>
+                <option value="360">360 Kolom (Ultra Detail)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Pengaturan Kualitas Visual LED (Gamma, Kontras, Urutan Byte) -->
+          <div class="pt-2 border-t border-slate-800/80 space-y-3">
+            <div class="flex items-center justify-between">
+              <label class="text-xs text-slate-300">Koreksi Gamma LED (Ketajaman Warna Hitam):</label>
+              <span id="gammaValLbl" class="text-xs font-mono font-bold text-cyber-cyan">2.0</span>
+            </div>
+            <input type="range" id="gammaRange" min="1.0" max="2.8" step="0.1" value="2.0" oninput="document.getElementById('gammaValLbl').innerText=this.value; refreshPreviewAndStats()" class="w-full">
+
+            <div class="flex items-center justify-between">
+              <label class="text-xs text-slate-300">Kecerahan Master File (Brightness Boost):</label>
+              <span id="briValLbl" class="text-xs font-mono font-bold text-cyber-cyan">100%</span>
+            </div>
+            <input type="range" id="briRange" min="40" max="150" step="5" value="100" oninput="document.getElementById('briValLbl').innerText=this.value+'%'; refreshPreviewAndStats()" class="w-full">
+
+            <div class="grid grid-cols-2 gap-2 pt-1">
+              <label class="flex items-center gap-2 bg-[#0d111a] border border-slate-800 px-3 py-2 rounded-xl cursor-pointer text-xs">
+                <input type="checkbox" id="chkFlipVert" onchange="refreshPreviewAndStats()" class="rounded accent-cyber-cyan">
+                <span>↕️ Balik Atas-Bawah</span>
+              </label>
+              <label class="flex items-center gap-2 bg-[#0d111a] border border-slate-800 px-3 py-2 rounded-xl cursor-pointer text-xs">
+                <input type="checkbox" id="chkMirrorHoriz" onchange="refreshPreviewAndStats()" class="rounded accent-cyber-cyan">
+                <span>↔️ Mirror Kiri-Kanan</span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. Card Ringkasan File & Tombol Generate / Kirim WiFi -->
+        <section class="bg-gradient-to-b from-[#151b28] to-cyber-card border border-cyber-cyan/40 rounded-2xl p-5 shadow-2xl space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold uppercase tracking-wider text-white">3. Ekspor & Upload ke Leviwand</h2>
+            <span id="ramStatusBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-green/20 text-cyber-green border border-cyber-green/40 font-bold">
+              ⚡ Muat di 80KB RAM Cache
+            </span>
+          </div>
+
+          <div class="bg-[#0a0d14] border border-slate-800 rounded-xl p-3 text-xs font-mono space-y-1.5 text-slate-300">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Dimensi Kolom / Frame:</span>
+              <span id="statColsInfo" class="text-white font-bold">240 kol (120 Orbit + 120 Spin)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Ukuran 1 Kolom (58 LED):</span>
+              <span id="statSliceBytes" class="text-cyber-cyan">174 bytes (58 × 3B RGB)</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Total Ukuran File .bin:</span>
+              <span id="statTotalSize" class="text-cyber-green font-bold">41,760 bytes (40.8 KB)</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Nama File Output (<code class="text-cyber-cyan">.bin</code>):</label>
+            <input type="text" id="outFilename" value="leviwand_smart.bin" class="w-full bg-[#0d111a] border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white">
+          </div>
+
+          <!-- Progress Bar Konversi Video -->
+          <div id="convProgressWrap" class="hidden space-y-1">
+            <div class="flex justify-between text-xs font-mono">
+              <span id="convProgressText" class="text-cyber-cyan">Memproses frame...</span>
+              <span id="convProgressPct" class="text-white font-bold">0%</span>
+            </div>
+            <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700">
+              <div id="convProgressBar" class="h-full bg-gradient-to-r from-cyber-cyan to-cyber-green w-0 transition-all duration-150"></div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+            <button id="btnDownloadBin" onclick="generateAndDownloadBin()" class="py-3 px-4 rounded-xl bg-gradient-to-r from-cyber-cyan to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-extrabold text-xs sm:text-sm shadow-lg glow-cyan flex items-center justify-center gap-2 transition">
+              <span>⬇️</span>
+              <span>Download File .BIN</span>
+            </button>
+
+            <button id="btnSendWifi" onclick="sendBinDirectlyToLeviwand()" class="py-3 px-4 rounded-xl bg-gradient-to-r from-cyber-green to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-extrabold text-xs sm:text-sm shadow-lg glow-green flex items-center justify-center gap-2 transition">
+              <span>📡</span>
+              <span>Kirim WiFi (192.168.4.1)</span>
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-400 text-center">
+            *Untuk tombol <b>Kirim WiFi</b>, hubungkan HP/Laptop ke WiFi <b>Trisuka Leviwand</b> terlebih dahulu.
+          </p>
+        </section>
+
+      </div>
+
+      <!-- KOLOM KANAN: SIMULATOR DUAL-CANVAS REALTIME (7 Kolom) -->
+      <div class="lg:col-span-7 space-y-5">
+
+        <!-- Header Simulator & Kontrol Animasi Putar -->
+        <div class="bg-cyber-card border border-cyber-border rounded-2xl p-5 shadow-xl space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3.5">
+            <div>
+              <h2 class="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
+                <span>👁️ SIMULATOR POV REAL-TIME (58 DOT LED)</span>
+              </h2>
+              <p class="text-xs text-slate-400">Pratinjau akurat bagaimana gambar terlihat di udara saat Mode 1 (Orbit Tubuh) & Mode 2 (Spin 360°)</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <button id="btnToggleSim" onclick="toggleLaserSimulation()" class="px-3 py-1.5 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/40 text-xs font-bold hover:bg-cyber-cyan hover:text-black transition">
+                ⏸️ Pause Simulasi Sapuan
+              </button>
+            </div>
+          </div>
+
+          <!-- SIMULATOR 1: MODE 1 (PORTRAIT CIRCLE ORBIT) -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 text-[11px] font-mono font-bold rounded bg-cyber-cyan text-black">PAKET A • MODE 1</span>
+                <h3 class="text-xs sm:text-sm font-bold text-slate-200">Portrait Circle Orbit (Tegak Mengelilingi Tubuh)</h3>
+              </div>
+              <span id="orbitResLabel" class="text-xs font-mono text-cyber-cyan">120 × 58 LED</span>
+            </div>
+
+            <div class="relative w-full bg-[#06080c] border border-slate-800 rounded-xl p-3 flex flex-col items-center justify-center overflow-hidden">
+              <canvas id="canvasOrbitPreview" width="480" height="232" class="w-full max-h-[240px] object-contain rounded-lg"></canvas>
+              <div class="w-full flex justify-between text-[10px] font-mono text-slate-500 mt-2 px-1">
+                <span>◀ Kolom 0 (Awal Ayunan)</span>
+                <span class="text-cyber-cyan">Garis Putih = Posisi Tongkat 58 LED Berjalan</span>
+                <span>Kolom Akhir ▶</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- SIMULATOR 2: MODE 2 (360° SPINNING PROPELLER) -->
+          <div class="space-y-2 pt-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-0.5 text-[11px] font-mono font-bold rounded bg-cyber-purple text-white">PAKET B • MODE 2</span>
+                <h3 class="text-xs sm:text-sm font-bold text-slate-200">360° Spinning (Putaran Baling-Baling Penuh)</h3>
+              </div>
+              <span id="spinResLabel" class="text-xs font-mono text-purple-400">Polar Radial 360° (Poros di LED #29)</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center bg-[#06080c] border border-slate-800 rounded-xl p-4">
+              <div class="md:col-span-7 flex justify-center">
+                <canvas id="canvasSpinPreview" width="320" height="320" class="w-64 h-64 sm:w-72 sm:h-72 rounded-full border border-slate-800/90 shadow-inner"></canvas>
+              </div>
+              <div class="md:col-span-5 space-y-3 text-xs text-slate-300">
+                <div class="bg-[#0e131d] border border-slate-800 p-3 rounded-xl space-y-1.5">
+                  <div class="font-bold text-purple-300 flex items-center gap-1.5">
+                    <span>🌀</span> <span>Cara Kerja Polar Mapping:</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 leading-relaxed">
+                    Saat leviwand diputar 360°, titik tengah tongkat (antara <b>LED 28 & 29</b>) menjadi titik pusat lingkaran, sedangkan <b>LED 0</b> dan <b>LED 57</b> menyapu tepi luar lingkaran.
+                  </p>
+                  <p class="text-[11px] text-slate-400 leading-relaxed">
+                    Paket B otomatis mengubah gambar persegi menjadi koordinat polar <code class="text-cyber-cyan">(r, θ)</code> agar gambar tidak terdistorsi atau berlubang di tengah!
+                  </p>
+                </div>
+
+                <!-- Hidden/Mini Source Preview -->
+                <div class="bg-[#0e131d] border border-slate-800 p-2.5 rounded-xl flex items-center gap-3">
+                  <canvas id="canvasRawSource" width="80" height="80" class="w-14 h-14 rounded-lg border border-slate-700 bg-black flex-shrink-0"></canvas>
+                  <div class="text-[11px] space-y-0.5">
+                    <div class="font-bold text-white">Sumber Frame Asli</div>
+                    <div id="rawSourceDim" class="text-slate-400 font-mono">240 × 240 px</div>
+                    <div class="text-cyber-green">Siap dikonversi 100%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL PANDUAN HOSTING GRATIS GITHUB & MIRROR SERVER -->
+  <div id="githubModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-cyber-card border border-cyber-cyan/40 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base sm:text-lg font-extrabold text-cyber-cyan flex items-center gap-2">
+          <span>🌐</span>
+          <span>Cara Jadikan Web Converter Ini Online & Gratis Selamanya</span>
+        </h3>
+        <button onclick="closeGithubModal()" class="text-slate-400 hover:text-white text-xl font-bold px-2">✕</button>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm text-slate-300 leading-relaxed">
+        <p>
+          Karena aplikasi <b>Trisuka Leviwand POV Studio</b> ini dibuat dalam bentuk <b>Single-File (<code class="text-cyber-green">index.html</code>)</b> dan memproses semuanya langsung di browser HP/Laptop tanpa server berbayar, kamu bisa meng-online-kannya secara <b>100% GRATIS</b> lewat GitHub & Mirror Server:
+        </p>
+
+        <div class="bg-[#0b0e15] border border-slate-800 rounded-xl p-4 space-y-2">
+          <div class="font-bold text-white text-sm">🚀 Cara 1: Pakai Mirror Server Instan (raw.githack.com / Statically)</div>
+          <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-300">
+            <li>Klik tombol <b>"💾 Unduh Web (index.html)"</b> di pojok kanan atas halaman ini.</li>
+            <li>Buka akun <a href="https://github.com" target="_blank" class="text-cyber-cyan underline">GitHub.com</a> kamu, buat repository publik baru (misal: <code class="text-cyber-green">leviwand-pov</code>).</li>
+            <li>Upload file <code class="text-cyber-green">index.html</code> tersebut ke dalam repository.</li>
+            <li>Kamu bisa langsung membukanya lewat server mirror CDN gratis cukup dengan menempelkan URL file GitHub kamu ke:
+              <ul class="list-disc list-inside ml-4 mt-1 text-cyber-cyan font-mono text-[11px] space-y-1">
+                <li>https://raw.githack.com/USERNAME/leviwand-pov/main/index.html</li>
+                <li>https://cdn.statically.io/gh/USERNAME/leviwand-pov/main/index.html</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+
+        <div class="bg-[#0b0e15] border border-slate-800 rounded-xl p-4 space-y-2">
+          <div class="font-bold text-white text-sm">⚡ Cara 2: Aktifkan GitHub Pages Resmi</div>
+          <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-300">
+            <li>Di repository GitHub kamu, buka menu <b>Settings ➔ Pages</b>.</li>
+            <li>Pada bagian <b>Branch</b>, pilih <code class="text-cyber-green">main</code> lalu klik <b>Save</b>.</li>
+            <li>Tunggu 1 menit, web converter kamu langsung aktif di alamat: <br>
+              <code class="text-cyber-green font-mono">https://USERNAME.github.io/leviwand-pov/</code>
+            </li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap justify-end gap-2 pt-3 border-t border-slate-800">
+        <button onclick="downloadSelfHtml()" class="px-4 py-2.5 rounded-xl bg-cyber-cyan text-black font-extrabold text-xs hover:bg-cyan-300 transition">
+          💾 Download File index.html Sekarang
+        </button>
+        <button onclick="closeGithubModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 font-bold text-xs hover:bg-slate-700 transition">
+          Tutup Panduan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Video & Offscreen Canvas untuk Pemrosesan Pixel -->
+  <video id="hiddenVideo" class="hidden" muted playsinline crossorigin="anonymous"></video>
+
+  <script>
+    // =========================================================================
+    // STATE GLOBAL APLIKASI CONVERTER POV LEVIWAND
+    // =========================================================================
+    let currentSourceType = 'preset'; // 'preset' | 'image' | 'video'
+    let activePresetName = 'cyberLogo';
+    let uploadedImageObj = null;
+    let uploadedVideoFile = null;
+
+    // Buffer data piksel hasil konversi frame aktif (untuk simulasi real-time)
+    let currentOrbitColsData = null; // Uint8Array [cols * leds * 3]
+    let currentSpinColsData  = null; // Uint8Array [cols * leds * 3]
+    let simActive = true;
+    let simStepCounter = 0;
+
+    const rawCanvas = document.getElementById('canvasRawSource');
+    const rawCtx = rawCanvas.getContext('2d', { willReadFrequently: true });
+
+    const orbitCanvas = document.getElementById('canvasOrbitPreview');
+    const orbitCtx = orbitCanvas.getContext('2d');
+
+    const spinCanvas = document.getElementById('canvasSpinPreview');
+    const spinCtx = spinCanvas.getContext('2d');
+
+    // =========================================================================
+    // 1. UI TABS & MODAL HANDLERS
+    // =========================================================================
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      t.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        t.classList.add('translate-y-20', 'opacity-0');
+      }, 2600);
+    }
+
+    function openGithubModal() {
+      document.getElementById('githubModal').classList.remove('hidden');
+    }
+    function closeGithubModal() {
+      document.getElementById('githubModal').classList.add('hidden');
+    }
+
+    function downloadSelfHtml() {
+      const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+      const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'index.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('File index.html berhasil diunduh! Siap di-upload ke GitHub.');
+    }
+
+    function switchSourceTab(tab) {
+      const btnUp = document.getElementById('tabBtnUpload');
+      const btnPr = document.getElementById('tabBtnPreset');
+      const pUp = document.getElementById('panelUpload');
+      const pPr = document.getElementById('panelPreset');
+
+      if (tab === 'upload') {
+        btnUp.className = 'py-2 text-xs font-bold rounded-lg bg-cyber-cyan text-black transition';
+        btnPr.className = 'py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition';
+        pUp.classList.remove('hidden');
+        pPr.classList.add('hidden');
+      } else {
+        btnPr.className = 'py-2 text-xs font-bold rounded-lg bg-cyber-cyan text-black transition';
+        btnUp.className = 'py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition';
+        pPr.classList.remove('hidden');
+        pUp.classList.add('hidden');
+        currentSourceType = 'preset';
+        document.getElementById('mediaTypeBadge').innerText = 'Generator Preset';
+        renderPresetToSource();
+      }
+    }
+
+    // =========================================================================
+    // 2. GENERATOR PRESET BUILT-IN (AGAR BISA LANGSUNG TES TANPA FILE)
+    // =========================================================================
+    function selectPreset(presetName) {
+      activePresetName = presetName;
+      currentSourceType = 'preset';
+      document.getElementById('mediaTypeBadge').innerText = 'Preset: ' + presetName;
+      renderPresetToSource();
+    }
+
+    function renderPresetToSource() {
+      const sz = 240;
+      rawCanvas.width = sz;
+      rawCanvas.height = sz;
+      rawCtx.fillStyle = '#000000';
+      rawCtx.fillRect(0, 0, sz, sz);
+
+      const txt = (document.getElementById('presetTextInput').value || 'TRISUKA').toUpperCase();
+      const accentCol = document.getElementById('presetColorInput').value || '#00e5ff';
+
+      if (activePresetName === 'cyberLogo') {
+        // Cincin Luar & Dalam + Bintang Cyber
+        const cx = sz / 2, cy = sz / 2;
+        const grad = rawCtx.createRadialGradient(cx, cy, 10, cx, cy, 115);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, accentCol);
+        grad.addColorStop(0.7, '#d500f9');
+        grad.addColorStop(1, '#000000');
+
+        rawCtx.strokeStyle = accentCol;
+        rawCtx.lineWidth = 12;
+        rawCtx.beginPath();
+        rawCtx.arc(cx, cy, 98, 0, Math.PI * 2);
+        rawCtx.stroke();
+
+        rawCtx.strokeStyle = '#d500f9';
+        rawCtx.lineWidth = 8;
+        rawCtx.beginPath();
+        rawCtx.arc(cx, cy, 68, 0, Math.PI * 2);
+        rawCtx.stroke();
+
+        // Palang Bintang 8 Sudut
+        for (let i = 0; i < 8; i++) {
+          const ang = (i * Math.PI) / 4;
+          rawCtx.strokeStyle = i % 2 === 0 ? '#00e676' : '#ffea00';
+          rawCtx.lineWidth = 6;
+          rawCtx.beginPath();
+          rawCtx.moveTo(cx + Math.cos(ang) * 22, cy + Math.sin(ang) * 22);
+          rawCtx.lineTo(cx + Math.cos(ang) * 92, cy + Math.sin(ang) * 92);
+          rawCtx.stroke();
+        }
+
+        // Teks Tengah
+        rawCtx.fillStyle = '#000000';
+        rawCtx.fillRect(10, cy - 22, sz - 20, 44);
+        rawCtx.fillStyle = '#ffffff';
+        rawCtx.font = '900 32px Inter, sans-serif';
+        rawCtx.textAlign = 'center';
+        rawCtx.textBaseline = 'middle';
+        rawCtx.fillText(txt, cx, cy);
+
+      } else if (activePresetName === 'customText') {
+        // Banner Teks Tajam + Bingkai Neon
+        rawCtx.strokeStyle = accentCol;
+        rawCtx.lineWidth = 8;
+        rawCtx.strokeRect(8, 20, sz - 16, sz - 40);
+
+        rawCtx.fillStyle = accentCol;
+        rawCtx.font = '900 42px Inter, sans-serif';
+        rawCtx.textAlign = 'center';
+        rawCtx.textBaseline = 'middle';
+        rawCtx.fillText(txt, sz / 2, sz / 2);
+
+      } else if (activePresetName === 'firePortal') {
+        const cx = sz / 2, cy = sz / 2;
+        for (let r = 110; r > 10; r -= 14) {
+          rawCtx.fillStyle = r % 28 === 0 ? '#ff1744' : '#ff9100';
+          rawCtx.beginPath();
+          rawCtx.arc(cx, cy, r, 0, Math.PI * 2);
+          rawCtx.fill();
+        }
+        rawCtx.fillStyle = '#ffea00';
+        rawCtx.font = '900 30px Inter, sans-serif';
+        rawCtx.textAlign = 'center';
+        rawCtx.textBaseline = 'middle';
+        rawCtx.fillText(txt, cx, cy);
+
+      } else if (activePresetName === 'neonGrid') {
+        const cx = sz / 2, cy = sz / 2;
+        const colors = ['#ff1744', '#ff9100', '#ffea00', '#00e676', '#00e5ff', '#d500f9'];
+        for (let i = 0; i < 12; i++) {
+          rawCtx.fillStyle = colors[i % colors.length];
+          rawCtx.beginPath();
+          rawCtx.moveTo(cx, cy);
+          rawCtx.arc(cx, cy, 115, (i * Math.PI) / 6, ((i + 0.8) * Math.PI) / 6);
+          rawCtx.closePath();
+          rawCtx.fill();
+        }
+      }
+
+      document.getElementById('rawSourceDim').innerText = '240 × 240 px (Preset)';
+      refreshPreviewAndStats();
+    }
+
+    // =========================================================================
+    // 3. HANDLER UPLOAD GAMBAR & VIDEO
+    // =========================================================================
+    function handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      document.getElementById('fileNameLabel').innerText = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+      const cleanBase = file.name.replace(/\.[^/.]+$/, "").replace(/[^a-zA-Z0-9_-]/g, "_");
+      document.getElementById('outFilename').value = cleanBase + '_pov.bin';
+
+      if (file.type.startsWith('video/')) {
+        currentSourceType = 'video';
+        uploadedVideoFile = file;
+        document.getElementById('mediaTypeBadge').innerText = 'Video MP4/WebM';
+        document.getElementById('videoConfigBox').classList.remove('hidden');
+
+        const vid = document.getElementById('hiddenVideo');
+        vid.src = URL.createObjectURL(file);
+        vid.onloadedmetadata = () => {
+          document.getElementById('videoDurationInfo').innerText = vid.duration.toFixed(1) + ' dtk (' + vid.videoWidth + '×' + vid.videoHeight + ')';
+          vid.currentTime = Math.min(0.5, vid.duration / 3);
+        };
+        vid.onseeked = () => {
+          rawCanvas.width = 240;
+          rawCanvas.height = 240;
+          rawCtx.drawImage(vid, 0, 0, 240, 240);
+          document.getElementById('rawSourceDim').innerText = vid.videoWidth + '×' + vid.videoHeight + ' (Video)';
+          refreshPreviewAndStats();
+        };
+      } else {
+        currentSourceType = 'image';
+        document.getElementById('mediaTypeBadge').innerText = 'Gambar Statis';
+        document.getElementById('videoConfigBox').classList.add('hidden');
+
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            uploadedImageObj = img;
+            rawCanvas.width = 240;
+            rawCanvas.height = 240;
+            rawCtx.clearRect(0, 0, 240, 240);
+            rawCtx.drawImage(img, 0, 0, 240, 240);
+            document.getElementById('rawSourceDim').innerText = img.width + ' × ' + img.height + ' px';
+            refreshPreviewAndStats();
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // =========================================================================
+    // 4. ALGORITMA INTI KONVERSI POV (PAKET A ORBIT + PAKET B POLAR SPIN 360)
+    // =========================================================================
+    function applyColorCorrection(val, gamma, briScale) {
+      let norm = (val / 255.0) * briScale;
+      if (norm > 1.0) norm = 1.0;
+      if (norm < 0.0) norm = 0.0;
+      return Math.round(Math.pow(norm, gamma) * 255.0);
+    }
+
+    /**
+     * Menghasilkan Paket A (Cartesian Orbit) dan Paket B (Polar 360 Spin) dari sourceElement (Canvas/Image/Video)
+     */
+    function extractFramePovBuffers(sourceElem, ledCount, colsPerMode, gamma, briScale, flipVert, mirrorHoriz) {
+      // 1. BUAT PAKET A: MODE 1 (PORTRAIT CIRCLE ORBIT - CARTESIAN TEGAK)
+      const offOrbit = document.createElement('canvas');
+      offOrbit.width = colsPerMode;
+      offOrbit.height = ledCount;
+      const ctxO = offOrbit.getContext('2d', { willReadFrequently: true });
+
+      ctxO.save();
+      if (mirrorHoriz || flipVert) {
+        ctxO.translate(mirrorHoriz ? colsPerMode : 0, flipVert ? ledCount : 0);
+        ctxO.scale(mirrorHoriz ? -1 : 1, flipVert ? -1 : 1);
+      }
+      ctxO.drawImage(sourceElem, 0, 0, colsPerMode, ledCount);
+      ctxO.restore();
+
+      const imgDataO = ctxO.getImageData(0, 0, colsPerMode, ledCount).data;
+      const orbitBytes = new Uint8Array(colsPerMode * ledCount * 3);
+
+      let ptr = 0;
+      // Penting: Urutan byte di firmware ESP32 adalah Kolom demi Kolom (0..cols-1),
+      // dan di dalam setiap kolom adalah LED 0 s/d LED 57 (masing-masing R, G, B).
+      for (let c = 0; c < colsPerMode; c++) {
+        for (let l = 0; l < ledCount; l++) {
+          const pxIdx = (l * colsPerMode + c) * 4;
+          const a = imgDataO[pxIdx + 3] / 255.0;
+          const r = applyColorCorrection(imgDataO[pxIdx] * a, gamma, briScale);
+          const g = applyColorCorrection(imgDataO[pxIdx + 1] * a, gamma, briScale);
+          const b = applyColorCorrection(imgDataO[pxIdx + 2] * a, gamma, briScale);
+
+          orbitBytes[ptr++] = r;
+          orbitBytes[ptr++] = g;
+          orbitBytes[ptr++] = b;
+        }
+      }
+
+      // 2. BUAT PAKET B: MODE 2 (360° SPINNING - POLAR RADIAL MAPPING)
+      const sqSize = 240;
+      const offSpin = document.createElement('canvas');
+      offSpin.width = sqSize;
+      offSpin.height = sqSize;
+      const ctxS = offSpin.getContext('2d', { willReadFrequently: true });
+
+      ctxS.save();
+      if (mirrorHoriz || flipVert) {
+        ctxS.translate(mirrorHoriz ? sqSize : 0, flipVert ? sqSize : 0);
+        ctxS.scale(mirrorHoriz ? -1 : 1, flipVert ? -1 : 1);
+      }
+      ctxS.drawImage(sourceElem, 0, 0, sqSize, sqSize);
+      ctxS.restore();
+
+      const imgDataS = ctxS.getImageData(0, 0, sqSize, sqSize).data;
+      const spinBytes = new Uint8Array(colsPerMode * ledCount * 3);
+
+      const halfRadius = (ledCount - 1) / 2.0;
+      const centerXY = (sqSize - 1) / 2.0;
+
+      let sPtr = 0;
+      for (let c = 0; c < colsPerMode; c++) {
+        const theta = (c / colsPerMode) * Math.PI * 2.0;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+
+        for (let l = 0; l < ledCount; l++) {
+          const rNorm = (l - halfRadius) / halfRadius; // -1.0 s/d +1.0
+          let px = Math.round(centerXY + rNorm * centerXY * sinT);
+          let py = Math.round(centerXY + rNorm * centerXY * cosT);
+          if (px < 0) px = 0; else if (px >= sqSize) px = sqSize - 1;
+          if (py < 0) py = 0; else if (py >= sqSize) py = sqSize - 1;
+
+          const sIdx = (py * sqSize + px) * 4;
+          const a = imgDataS[sIdx + 3] / 255.0;
+          const r = applyColorCorrection(imgDataS[sIdx] * a, gamma, briScale);
+          const g = applyColorCorrection(imgDataS[sIdx + 1] * a, gamma, briScale);
+          const b = applyColorCorrection(imgDataS[sIdx + 2] * a, gamma, briScale);
+
+          spinBytes[sPtr++] = r;
+          spinBytes[sPtr++] = g;
+          spinBytes[sPtr++] = b;
+        }
+      }
+
+      return { orbitBytes, spinBytes };
+    }
+
+    // =========================================================================
+    // 5. UPDATE PREVIEW SIMULATOR & KALKULASI MEMORI LOLIN32 LITE
+    // =========================================================================
+    function getSettings() {
+      const mode = document.getElementById('binModeSelect').value; // 'dual' | 'orbit' | 'spin'
+      const ledCount = Math.max(16, Math.min(300, parseInt(document.getElementById('ledCountInput').value) || 58));
+      const colsPerMode = parseInt(document.getElementById('colsWidthSelect').value) || 120;
+      const gamma = parseFloat(document.getElementById('gammaRange').value) || 2.0;
+      const briScale = (parseFloat(document.getElementById('briRange').value) || 100) / 100.0;
+      const flipVert = document.getElementById('chkFlipVert').checked;
+      const mirrorHoriz = document.getElementById('chkMirrorHoriz').checked;
+      return { mode, ledCount, colsPerMode, gamma, briScale, flipVert, mirrorHoriz };
+    }
+
+    function refreshPreviewAndStats() {
+      const cfg = getSettings();
+      const { orbitBytes, spinBytes } = extractFramePovBuffers(
+        rawCanvas, cfg.ledCount, cfg.colsPerMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz
+      );
+
+      currentOrbitColsData = orbitBytes;
+      currentSpinColsData = spinBytes;
+
+      document.getElementById('orbitResLabel').innerText = `${cfg.colsPerMode} Kolom × ${cfg.ledCount} LED`;
+      document.getElementById('spinResLabel').innerText = `${cfg.colsPerMode} Sudut × ${cfg.ledCount} LED (Poros LED #${Math.floor(cfg.ledCount/2)})`;
+
+      updateSizeEstimation();
+      drawSimulatorFrame();
+    }
+
+    function updateSizeEstimation() {
+      const cfg = getSettings();
+      let frameCount = 1;
+      if (currentSourceType === 'video') {
+        const vid = document.getElementById('hiddenVideo');
+        const fps = parseInt(document.getElementById('videoFpsSelect').value) || 25;
+        const maxF = parseInt(document.getElementById('maxVideoFrames').value) || 60;
+        const estFrames = vid.duration ? Math.ceil(vid.duration * fps) : maxF;
+        frameCount = Math.max(1, Math.min(maxF, estFrames));
+      }
+
+      const sliceBytes = cfg.ledCount * 3;
+      const colsPerFrame = (cfg.mode === 'dual') ? (cfg.colsPerMode * 2) : cfg.colsPerMode;
+      const totalBytes = frameCount * colsPerFrame * sliceBytes;
+
+      document.getElementById('statColsInfo').innerText = (cfg.mode === 'dual')
+        ? `${colsPerFrame} kol/frame (${cfg.colsPerMode} Orbit + ${cfg.colsPerMode} Spin) × ${frameCount} frm`
+        : `${colsPerFrame} kol/frame × ${frameCount} frm`;
+
+      document.getElementById('statSliceBytes').innerText = `${sliceBytes} bytes (${cfg.ledCount} × 3B RGB)`;
+      document.getElementById('statTotalSize').innerText = `${totalBytes.toLocaleString('id-ID')} bytes (${(totalBytes / 1024).toFixed(1)} KB)`;
+
+      const badge = document.getElementById('ramStatusBadge');
+      if (totalBytes <= 80 * 1024) {
+        badge.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-green/20 text-cyber-green border border-cyber-green/40 font-bold';
+        badge.innerText = '⚡ 0ms RAM Cache (≤ 80KB)';
+      } else {
+        badge.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-orange/20 text-cyber-orange border border-cyber-orange/40 font-bold';
+        badge.innerText = '💾 Direct SD Stream (> 80KB)';
+      }
+    }
+
+    function toggleLaserSimulation() {
+      simActive = !simActive;
+      const btn = document.getElementById('btnToggleSim');
+      btn.innerText = simActive ? '⏸️ Pause Simulasi Sapuan' : '▶️ Play Simulasi Sapuan';
+    }
+
+    function drawSimulatorFrame() {
+      if (!currentOrbitColsData || !currentSpinColsData) return;
+      const cfg = getSettings();
+      const cols = cfg.colsPerMode;
+      const leds = cfg.ledCount;
+
+      // 1. RENDER CANVAS 1: MODE 1 PORTRAIT ORBIT
+      const ow = orbitCanvas.width;
+      const oh = orbitCanvas.height;
+      orbitCtx.fillStyle = '#05070b';
+      orbitCtx.fillRect(0, 0, ow, oh);
+
+      const cellW = ow / cols;
+      const cellH = oh / leds;
+      const activeColCursor = simStepCounter % cols;
+
+      for (let c = 0; c < cols; c++) {
+        for (let l = 0; l < leds; l++) {
+          const idx = (c * leds + l) * 3;
+          const r = currentOrbitColsData[idx];
+          const g = currentOrbitColsData[idx + 1];
+          const b = currentOrbitColsData[idx + 2];
+          if (r > 4 || g > 4 || b > 4) {
+            orbitCtx.fillStyle = `rgb(${r},${g},${b})`;
+            orbitCtx.fillRect(c * cellW, l * cellH, Math.ceil(cellW), Math.ceil(cellH));
+          }
+        }
+      }
+
+      // Garis Indikator Posisi Tongkat Leviwand Berjalan
+      if (simActive) {
+        orbitCtx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+        orbitCtx.lineWidth = 2;
+        orbitCtx.beginPath();
+        orbitCtx.moveTo(activeColCursor * cellW, 0);
+        orbitCtx.lineTo(activeColCursor * cellW, oh);
+        orbitCtx.stroke();
+      }
+
+      // 2. RENDER CANVAS 2: MODE 2 (360° SPINNING PROPELLER)
+      const sw = spinCanvas.width;
+      const sh = spinCanvas.height;
+      const cx = sw / 2;
+      const cy = sh / 2;
+      const maxRadius = (sw / 2) - 8;
+      const halfLed = (leds - 1) / 2.0;
+
+      spinCtx.fillStyle = '#05070b';
+      spinCtx.fillRect(0, 0, sw, sh);
+
+      const dotSize = Math.max(2.2, (maxRadius / halfLed) * 0.85);
+
+      for (let c = 0; c < cols; c++) {
+        const theta = (c / cols) * Math.PI * 2.0;
+        const sinT = Math.sin(theta);
+        const cosT = Math.cos(theta);
+
+        for (let l = 0; l < leds; l++) {
+          const idx = (c * leds + l) * 3;
+          const r = currentSpinColsData[idx];
+          const g = currentSpinColsData[idx + 1];
+          const b = currentSpinColsData[idx + 2];
+          if (r > 5 || g > 5 || b > 5) {
+            const rNorm = (l - halfLed) / halfLed;
+            const px = cx + rNorm * maxRadius * sinT;
+            const py = cy + rNorm * maxRadius * cosT;
+            spinCtx.fillStyle = `rgb(${r},${g},${b})`;
+            spinCtx.fillRect(px - dotSize / 2, py - dotSize / 2, dotSize, dotSize);
+          }
+        }
+      }
+
+      // Gambar posisi batang leviwand yang sedang berputar 360 derajat
+      if (simActive) {
+        const rodTheta = (activeColCursor / cols) * Math.PI * 2.0;
+        spinCtx.strokeStyle = 'rgba(0, 229, 255, 0.9)';
+        spinCtx.lineWidth = 2.5;
+        spinCtx.beginPath();
+        spinCtx.moveTo(cx - maxRadius * Math.sin(rodTheta), cy - maxRadius * Math.cos(rodTheta));
+        spinCtx.lineTo(cx + maxRadius * Math.sin(rodTheta), cy + maxRadius * Math.cos(rodTheta));
+        spinCtx.stroke();
+
+        // Titik poros tengah
+        spinCtx.fillStyle = '#ffffff';
+        spinCtx.beginPath();
+        spinCtx.arc(cx, cy, 4, 0, Math.PI * 2);
+        spinCtx.fill();
+      }
+    }
+
+    function animateSimulatorLoop() {
+      if (simActive) {
+        simStepCounter = (simStepCounter + 1) % 3600;
+        drawSimulatorFrame();
+      }
+      requestAnimationFrame(animateSimulatorLoop);
+    }
+
+    // =========================================================================
+    // 6. PEMBUATAN FILE BINARY (.BIN) PENUH (GAMBAR & VIDEO MULTI-FRAME)
+    // =========================================================================
+    async function buildCompleteBinUint8Array() {
+      const cfg = getSettings();
+      const sliceBytes = cfg.ledCount * 3;
+      const singleModeByteLen = cfg.colsPerMode * sliceBytes;
+      const frameByteLen = (cfg.mode === 'dual') ? (singleModeByteLen * 2) : singleModeByteLen;
+
+      if (currentSourceType !== 'video') {
+        // Satu Frame (Gambar Statis atau Preset)
+        const { orbitBytes, spinBytes } = extractFramePovBuffers(
+          rawCanvas, cfg.ledCount, cfg.colsPerMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz
+        );
+        const out = new Uint8Array(frameByteLen);
+        if (cfg.mode === 'dual') {
+          out.set(orbitBytes, 0);
+          out.set(spinBytes, singleModeByteLen);
+        } else if (cfg.mode === 'orbit') {
+          out.set(orbitBytes, 0);
+        } else {
+          out.set(spinBytes, 0);
+        }
+        return out;
+      }
+
+      // Jika Video Multi-Frame: Ekstrak frame demi frame
+      const vid = document.getElementById('hiddenVideo');
+      const fps = parseInt(document.getElementById('videoFpsSelect').value) || 25;
+      const maxF = parseInt(document.getElementById('maxVideoFrames').value) || 60;
+      const totalFrames = Math.max(1, Math.min(maxF, Math.ceil((vid.duration || 1) * fps)));
+
+      const outBuffer = new Uint8Array(totalFrames * frameByteLen);
+      const pWrap = document.getElementById('convProgressWrap');
+      const pBar = document.getElementById('convProgressBar');
+      const pTxt = document.getElementById('convProgressText');
+      const pPct = document.getElementById('convProgressPct');
+
+      pWrap.classList.remove('hidden');
+
+      for (let f = 0; f < totalFrames; f++) {
+        const targetTime = Math.min(vid.duration - 0.01, f / fps);
+        vid.currentTime = Math.max(0, targetTime);
+
+        await new Promise((resolve) => {
+          const onSeek = () => {
+            vid.removeEventListener('seeked', onSeek);
+            resolve();
+          };
+          vid.addEventListener('seeked', onSeek);
+        });
+
+        rawCtx.drawImage(vid, 0, 0, 240, 240);
+        const { orbitBytes, spinBytes } = extractFramePovBuffers(
+          rawCanvas, cfg.ledCount, cfg.colsPerMode, cfg.gamma, cfg.briScale, cfg.flipVert, cfg.mirrorHoriz
+        );
+
+        const offset = f * frameByteLen;
+        if (cfg.mode === 'dual') {
+          outBuffer.set(orbitBytes, offset);
+          outBuffer.set(spinBytes, offset + singleModeByteLen);
+        } else if (cfg.mode === 'orbit') {
+          outBuffer.set(orbitBytes, offset);
+        } else {
+          outBuffer.set(spinBytes, offset);
+        }
+
+        const pct = Math.round(((f + 1) / totalFrames) * 100);
+        pBar.style.width = pct + '%';
+        pPct.innerText = pct + '%';
+        pTxt.innerText = `Mengekstrak Frame ${f + 1} / ${totalFrames}...`;
+      }
+
+      setTimeout(() => pWrap.classList.add('hidden'), 1200);
+      return outBuffer;
+    }
+
+    async function generateAndDownloadBin() {
+      const btn = document.getElementById('btnDownloadBin');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> <span>Memproses .BIN...</span>';
+
+      try {
+        const binBytes = await buildCompleteBinUint8Array();
+        let fname = document.getElementById('outFilename').value.trim() || 'leviwand_smart.bin';
+        if (!fname.toLowerCase().endsWith('.bin')) fname += '.bin';
+
+        const blob = new Blob([binBytes], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fname;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast(`File ${fname} (${(binBytes.length / 1024).toFixed(1)} KB) berhasil diunduh!`);
+      } catch (err) {
+        showToast('Gagal membuat file: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>⬇️</span> <span>Download File .BIN</span>';
+      }
+    }
+
+    async function sendBinDirectlyToLeviwand() {
+      const btn = document.getElementById('btnSendWifi');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> <span>Mengirim ke 192.168.4.1...</span>';
+
+      try {
+        const binBytes = await buildCompleteBinUint8Array();
+        let fname = document.getElementById('outFilename').value.trim() || 'leviwand_smart.bin';
+        if (!fname.toLowerCase().endsWith('.bin')) fname += '.bin';
+
+        const blob = new Blob([binBytes], { type: 'application/octet-stream' });
+        const formData = new FormData();
+        formData.append('update', blob, fname);
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+        const resp = await fetch(`http://192.168.4.1/upload?target=sd&expected=${binBytes.length}`, {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (resp.ok) {
+          showToast(`Terkirim langsung ke Memory Leviwand (${fname})!`);
+        } else {
+          showToast('Leviwand merespon error. Pastikan Web UI Leviwand aktif.');
+        }
+      } catch (err) {
+        showToast('Tidak terhubung ke 192.168.4.1. Silakan Download .BIN lalu upload via Web UI Leviwand.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>📡</span> <span>Kirim WiFi (192.168.4.1)</span>';
+      }
+    }
+
+    // Inisialisasi Awal
+    window.addEventListener('DOMContentLoaded', () => {
+      renderPresetToSource();
+      requestAnimationFrame(animateSimulatorLoop);
+    });
+  </script>
+</body>
+</html>
