@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Trisuka Pixel Studio — Universal LED Prop Converter (Payung 1.352 LED & Leviwand 58 LED)</title>
+  <title>Trisuka Pixel Studio — Universal LED Prop Converter</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Google Fonts Inter & JetBrains Mono -->
@@ -84,7 +84,7 @@
         <div>
           <div class="flex items-center gap-2 flex-wrap">
             <h1 class="font-black text-sm sm:text-lg tracking-tight text-white">TRISUKA PIXEL STUDIO</h1>
-            <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-bold">v0.1.0 Slider Controlled</span>
+            <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-bold">v0.1.2 Full Duration</span>
           </div>
           <p class="text-[11px] text-slate-400 hidden sm:block">Converter Gambar & Video ke <code class="text-cyber-green font-mono">.bin</code> untuk <b>Payung LED (1.352 LED)</b> & <b>Leviwand POV (58 LED)</b></p>
         </div>
@@ -102,9 +102,6 @@
             <span>Leviwand (58)</span>
           </button>
         </div>
-        <button onclick="openGithubModal()" class="px-2.5 py-1.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-[11px] font-bold text-slate-300 transition" title="Bantuan Hosting & WiFi">
-          🌐 Panduan
-        </button>
       </div>
     </div>
   </header>
@@ -125,7 +122,7 @@
       </div>
       <div class="hidden sm:flex items-center gap-2 font-mono text-[11px]">
         <span id="bannerBadge1" class="px-2.5 py-1 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-bold">33 Baris Zig-Zag</span>
-        <span id="bannerBadge2" class="px-2.5 py-1 rounded-lg bg-cyber-green/15 text-cyber-green border border-cyber-green/30 font-bold">Precision Slider</span>
+        <span id="bannerBadge2" class="px-2.5 py-1 rounded-lg bg-cyber-green/15 text-cyber-green border border-cyber-green/30 font-bold">Full Video Duration</span>
       </div>
     </div>
 
@@ -166,18 +163,6 @@
                 <button type="button" onclick="resetImageTransform()" class="absolute top-1 right-1 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-cyber-cyan px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition">
                   ↺ Reset
                 </button>
-              </div>
-
-              <!-- Legend -->
-              <div class="w-full flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] font-mono text-slate-400 mt-2.5 px-1">
-                <div class="flex items-center gap-3">
-                  <span class="flex items-center gap-1"><i class="inline-block w-2 h-2 rounded-full bg-cyber-cyan"></i> P1 (1-23)</span>
-                  <span class="flex items-center gap-1"><i class="inline-block w-2 h-2 rounded-full bg-cyber-purple"></i> P2 (24-33)</span>
-                </div>
-                <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 select-none">
-                  <input type="checkbox" id="chkShowRingGuides" checked onchange="drawSimulatorFrame()" class="rounded accent-cyber-cyan">
-                  <span>Garis Jalur Kabel</span>
-                </label>
               </div>
             </div>
 
@@ -406,7 +391,7 @@
               <div class="grid grid-cols-2 gap-3">
                 <div>
                   <label class="text-[11px] text-slate-400 block mb-1">Target FPS Playback</label>
-                  <select id="videoFpsSelect" onchange="updateSizeEstimation()" class="w-full bg-[#141926] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
+                  <select id="videoFpsSelect" onchange="onFpsChanged()" class="w-full bg-[#141926] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
                     <option value="20">20.00 FPS</option>
                     <option value="24">24.00 FPS (Film)</option>
                     <option value="25" selected>25.00 FPS (Standar Payung)</option>
@@ -414,8 +399,11 @@
                   </select>
                 </div>
                 <div>
-                  <label class="text-[11px] text-slate-400 block mb-1">Jumlah Frame Diambil</label>
-                  <input type="number" id="maxVideoFrames" value="50" min="1" max="1200" onchange="updateSizeEstimation()" class="w-full bg-[#141926] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
+                  <div class="flex justify-between items-center mb-1">
+                    <label class="text-[11px] text-slate-400">Total Frame Diambil</label>
+                    <span id="fullDurBadge" class="text-[9px] font-mono text-cyber-green font-bold">100% Utuh</span>
+                  </div>
+                  <input type="number" id="maxVideoFrames" value="50" min="1" max="20000" onchange="updateSizeEstimation()" class="w-full bg-[#141926] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
                 </div>
               </div>
             </div>
@@ -554,7 +542,7 @@
             </button>
           </div>
           <p id="activePropFooterLbl" class="text-[11px] text-slate-400 text-center font-mono">
-            Target Aktif: Payung 1.352 LED (Precision Slider Controlled)
+            Target Aktif: Payung 1.352 LED (Full Duration Supported)
           </p>
         </section>
 
@@ -794,7 +782,7 @@
     }
 
     // =========================================================================
-    // 2. KONTROL SLIDER & SUB-TABS (KONTROL PENUH VIA SLIDER)
+    // 2. KONTROL SLIDER & SUB-TABS
     // =========================================================================
     function switchEditorSubTab(tab) {
       const btnT = document.getElementById('btnSubTabTransform');
@@ -939,10 +927,10 @@
         document.getElementById('bannerTitle').innerText = 'Mode Aktif: Payung LED Trisuka (Horizontal Zig-Zag Bawah ➔ Atas)';
         document.getElementById('bannerSub').innerText = 'P1 (Pin 2): Baris 1-23 (990 LED) • P2 (Pin 4): Baris 24-33 (362 LED) • Total: 1.352 LED (4.056 B/Frame)';
         document.getElementById('bannerBadge1').innerText = '33 Baris Zig-Zag';
-        document.getElementById('bannerBadge2').innerText = 'Precision Slider';
+        document.getElementById('bannerBadge2').innerText = 'Full Video Duration';
         document.getElementById('simHeaderTitle').innerHTML = '<span>☂️ PRATINJAU LED (1.352 LED)</span>';
         document.getElementById('simHeaderSub').innerText = 'Gunakan slider kontrol di bawah untuk mengatur skala & posisi';
-        document.getElementById('activePropFooterLbl').innerText = 'Target Aktif: Payung 1.352 LED (Precision Slider Controlled)';
+        document.getElementById('activePropFooterLbl').innerText = 'Target Aktif: Payung 1.352 LED (Full Duration Supported)';
 
         const fnInput = document.getElementById('outFilename');
         if (fnInput.value.includes('leviwand')) fnInput.value = 'payung_sync.bin';
@@ -1162,6 +1150,18 @@
       refreshPreviewAndStats();
     }
 
+    function onFpsChanged() {
+      const vid = document.getElementById('hiddenVideo');
+      if (currentSourceType === 'video' && vid && vid.duration) {
+        const fps = parseInt(document.getElementById('videoFpsSelect').value) || 25;
+        const totalEst = Math.max(1, Math.ceil(vid.duration * fps));
+        // MENGAMBIL DURASI PENUH SESUAI FPS
+        document.getElementById('maxVideoFrames').value = totalEst;
+        document.getElementById('videoDurationInfo').innerText = `${vid.duration.toFixed(1)} dtk (${totalEst} frm)`;
+      }
+      updateSizeEstimation();
+    }
+
     function handleFileUpload(e) {
       const files = Array.from(e.target.files || []);
       if (files.length === 0) return;
@@ -1211,7 +1211,9 @@
         vid.onloadedmetadata = () => {
           const fps = parseInt(document.getElementById('videoFpsSelect').value) || 25;
           const totalEst = Math.max(1, Math.ceil(vid.duration * fps));
-          document.getElementById('maxVideoFrames').value = Math.min(450, totalEst);
+          
+          // MENGAMBIL SELURUH DURASI PENUH VIDEO (BEBAS DARI PEMBATAS 450)
+          document.getElementById('maxVideoFrames').value = totalEst;
           document.getElementById('videoDurationInfo').innerText = `${vid.duration.toFixed(1)} dtk (${totalEst} frm)`;
           document.getElementById('rawSourceDim').innerText = `${vid.videoWidth}×${vid.videoHeight} (Live Video)`;
           updateSizeEstimation();
@@ -1584,7 +1586,7 @@
         const sinT = Math.sin(theta);
         const cosT = Math.cos(theta);
 
-        for (let l = 0; l < leds; l++) {
+        for (let l = 0; l < ledCount; l++) {
           const idx = (c * leds + l) * 3;
           const r = currentSpinColsData[idx];
           const g = currentSpinColsData[idx + 1];
@@ -1649,7 +1651,7 @@
     }
 
     // =========================================================================
-    // 8. GENERATOR FILE BINARY (.BIN)
+    // 8. GENERATOR FILE BINARY (.BIN) PENUH
     // =========================================================================
     async function buildCompleteBinUint8Array() {
       const cfg = getSettings();
@@ -1669,7 +1671,7 @@
       try {
         if (activePropDevice === 'umbrella') {
           if (currentSourceType === 'video') {
-            const totalFrames = Math.max(1, Math.min(maxF, Math.ceil((vid.duration || 1) * fps)));
+            const totalFrames = Math.max(1, maxF);
             const outBuffer = new Uint8Array(totalFrames * UMBRELLA_FRAME_BYTES);
             pWrap.classList.remove('hidden');
 
@@ -1734,7 +1736,7 @@
           return out;
         }
 
-        const totalFrames = Math.max(1, Math.min(maxF, Math.ceil((vid.duration || 1) * fps)));
+        const totalFrames = Math.max(1, maxF);
         const outBuffer = new Uint8Array(totalFrames * frameByteLen);
         pWrap.classList.remove('hidden');
 
