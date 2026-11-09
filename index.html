@@ -410,7 +410,7 @@
                 <div>
                   <div class="flex justify-between items-center mb-1">
                     <label class="text-[11px] text-slate-400">Total Frame Diambil</label>
-                    <span id="fullDurBadge" class="text-[9px] font-mono text-cyber-green font-bold">100% Utuh</span>
+                    <span id="fullDurBadge" class="text-[9px] font-mono text-cyber-green font-bold">100%</span>
                   </div>
                   <input type="number" id="maxVideoFrames" value="50" min="1" max="20000" onchange="updateSizeEstimation()" class="w-full bg-[#141926] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
                 </div>
@@ -547,7 +547,7 @@
 
             <button id="btnSendWifi" onclick="sendBinDirectlyToController()" class="py-3 px-4 rounded-xl bg-gradient-to-r from-cyber-green to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-black font-extrabold text-xs sm:text-sm shadow-lg glow-green flex items-center justify-center gap-2 transition">
               <span>📡</span>
-              <span>Upload ke 192.168.4.1</span>
+              <span>Upload ke Trisuka Controller</span>
             </button>
           </div>
           <p id="activePropFooterLbl" class="text-[11px] text-slate-400 text-center font-mono">
@@ -1862,7 +1862,10 @@
 
         await new Promise((resolve, reject) => {
           const xhr = new XMLHttpRequest();
-          xhr.open('POST', `http://192.168.4.1/upload?target=${targetFolder}&expected=${binBytes.length}`, true);
+          const uploadEndpoint = (window.location.hostname === '192.168.4.1' || window.location.hostname.endsWith('.local'))
+            ? `/upload?target=${targetFolder}&expected=${binBytes.length}`
+            : `http://192.168.4.1/upload?target=${targetFolder}&expected=${binBytes.length}`;
+          xhr.open('POST', uploadEndpoint, true);
           xhr.timeout = 240000;
           xhr.upload.onprogress = (ev) => {
             if (ev.lengthComputable) {
