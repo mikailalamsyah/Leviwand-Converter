@@ -40,6 +40,7 @@
       background-image: 
         radial-gradient(circle at 15% 15%, rgba(0, 229, 255, 0.07) 0%, transparent 35%),
         radial-gradient(circle at 85% 80%, rgba(213, 0, 249, 0.07) 0%, transparent 35%);
+      overscroll-behavior-y: contain;
     }
     ::-webkit-scrollbar { width: 8px; height: 8px; }
     ::-webkit-scrollbar-track { background: #0d1017; }
@@ -48,8 +49,23 @@
     .glow-cyan { box-shadow: 0 0 22px rgba(0, 229, 255, 0.28); }
     .glow-green { box-shadow: 0 0 22px rgba(0, 230, 118, 0.3); }
     .glow-purple { box-shadow: 0 0 22px rgba(213, 0, 249, 0.3); }
-    input[type="range"] { accent-color: #00e5ff; }
-    canvas { image-rendering: pixelated; }
+    
+    /* Slider Ramah Jari Android (Touch-Friendly) */
+    input[type="range"] {
+      accent-color: #00e5ff;
+      height: 8px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+    canvas {
+      image-rendering: pixelated;
+      touch-action: none; /* Agar bisa drag posisi gambar langsung di kanvas HP */
+    }
   </style>
 </head>
 <body class="min-h-screen font-sans antialiased selection:bg-cyber-cyan selection:text-black pb-16">
@@ -61,66 +77,311 @@
   </div>
 
   <!-- Top Navbar -->
-  <header class="sticky top-0 z-30 backdrop-blur-md bg-[#090b10]/90 border-b border-cyber-border">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyber-cyan via-blue-600 to-cyber-purple flex items-center justify-center shadow-lg shadow-cyber-cyan/20 font-extrabold text-black text-xl">
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-[#090b10]/95 border-b border-cyber-border">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-cyber-cyan via-blue-600 to-cyber-purple flex items-center justify-center shadow-lg shadow-cyber-cyan/20 font-extrabold text-black text-lg sm:text-xl">
           ⚡
         </div>
         <div>
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="font-black text-base sm:text-lg tracking-tight text-white">TRISUKA PIXEL STUDIO</h1>
-            <span class="text-[11px] font-mono uppercase px-2 py-0.5 rounded-full bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-bold">Universal .BIN Engine</span>
+            <h1 class="font-black text-sm sm:text-lg tracking-tight text-white">TRISUKA PIXEL STUDIO</h1>
+            <span class="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-bold">v0.0.7 Zig-Zag</span>
           </div>
-          <p class="text-xs text-slate-400">Converter Gambar & Video ke <code class="text-cyber-green font-mono">.bin</code> untuk <b>Payung LED (1.352 LED)</b> & <b>Leviwand POV (58 LED)</b></p>
+          <p class="text-[11px] text-slate-400 hidden sm:block">Converter Gambar & Video ke <code class="text-cyber-green font-mono">.bin</code> untuk <b>Payung LED (1.352 LED)</b> & <b>Leviwand POV (58 LED)</b></p>
         </div>
       </div>
 
-      <!-- DEVICE MODE SWITCHER DI TENGAH/KANAN -->
-      <div class="flex items-center gap-2 flex-wrap">
+      <!-- DEVICE MODE SWITCHER -->
+      <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
         <div class="bg-[#0d111a] p-1 rounded-xl border border-slate-800 flex items-center gap-1">
-          <button id="propTabUmbrella" onclick="switchPropDevice('umbrella')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 bg-gradient-to-r from-cyber-cyan to-blue-500 text-black shadow">
+          <button id="propTabUmbrella" onclick="switchPropDevice('umbrella')" class="px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-extrabold transition flex items-center gap-1 bg-gradient-to-r from-cyber-cyan to-blue-500 text-black shadow">
             <span>☂️</span>
-            <span>Mode Payung LED (1.352 LED)</span>
+            <span>Payung (1.352)</span>
           </button>
-          <button id="propTabLeviwand" onclick="switchPropDevice('leviwand')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 text-slate-400 hover:text-white">
+          <button id="propTabLeviwand" onclick="switchPropDevice('leviwand')" class="px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-extrabold transition flex items-center gap-1 text-slate-400 hover:text-white">
             <span>🪄</span>
-            <span>Mode Leviwand POV (58 LED)</span>
+            <span>Leviwand (58)</span>
           </button>
         </div>
+
+        <button onclick="openGithubModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-xs font-semibold text-cyber-cyan border border-cyber-cyan/30 flex items-center gap-1 transition" title="Panduan Hosting GitHub">
+          <span>🌐</span>
+          <span class="hidden md:inline">GitHub</span>
+        </button>
+        <button onclick="downloadSelfHtml()" class="px-2.5 py-1.5 rounded-xl bg-cyber-purple/20 hover:bg-cyber-purple/30 text-xs font-semibold text-purple-300 border border-cyber-purple/40 flex items-center gap-1 transition" title="Download file index.html mandiri">
+          <span>💾</span>
+          <span class="hidden sm:inline">.HTML</span>
+        </button>
       </div>
     </div>
   </header>
 
   <!-- Main Workspace -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 pt-5">
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 pt-3 sm:pt-5">
 
-    <!-- Banner Info Spesifikasi Hardware Aktif -->
-    <div id="hardwareSpecBanner" class="mb-5 bg-gradient-to-r from-[#111827] via-[#151c2c] to-[#111827] border border-cyber-cyan/30 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 text-xs">
-      <div class="flex items-center gap-3">
-        <span id="bannerIcon" class="text-2xl">☂️</span>
+    <!-- Banner Info Spesifikasi Hardware Aktif (Ringkas di Mobile) -->
+    <div id="hardwareSpecBanner" class="mb-4 bg-gradient-to-r from-[#111827] via-[#151c2c] to-[#111827] border border-cyber-cyan/30 rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+      <div class="flex items-center gap-2.5">
+        <span id="bannerIcon" class="text-xl sm:text-2xl">☂️</span>
         <div>
-          <div id="bannerTitle" class="font-extrabold text-white text-sm">Mode Aktif: Payung LED Trisuka Master Sync (Firmware v0.0.7 - Horizontal Zigzag)</div>
-          <div id="bannerSub" class="text-slate-400 font-mono text-[11px]">
-            P1 (Pin 2): Baris 1-23 (990 LED) Bawah ke Tengah • P2 (Pin 4): Baris 24-33 (362 LED) Tengah ke Atas • Total: 1.352 LED
+          <div id="bannerTitle" class="font-extrabold text-white text-xs sm:text-sm">Mode Aktif: Payung LED Trisuka (Horizontal Zig-Zag Bawah ➔ Atas)</div>
+          <div id="bannerSub" class="text-slate-400 font-mono text-[10px] sm:text-[11px]">
+            P1 (Pin 2): Baris 1-23 (990 LED) • P2 (Pin 4): Baris 24-33 (362 LED) • Total: 1.352 LED (4.056 B/Frame)
           </div>
         </div>
       </div>
-      <div class="flex items-center gap-2 font-mono text-[11px]">
+      <div class="hidden sm:flex items-center gap-2 font-mono text-[11px]">
         <span id="bannerBadge1" class="px-2.5 py-1 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/30 font-bold">33 Baris Zig-Zag</span>
         <span id="bannerBadge2" class="px-2.5 py-1 rounded-lg bg-cyber-green/15 text-cyber-green border border-cyber-green/30 font-bold">25.00 FPS Sync</span>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- GRID UTAMA: Di HP Android Preview+Edit berada di ATAS (order-1), di PC sejajar Kiri-Kanan -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-      <!-- KOLOM KIRI: INPUT MEDIA & KONFIGURASI (5 Kolom) -->
-      <div class="lg:col-span-5 space-y-5">
+      <!-- =================================================================== -->
+      <!-- KOLOM KANAN (DI ANDROID TAMPIL PALING ATAS / ORDER-1):              -->
+      <!-- SIMULATOR PREVIEW + DOCK KOREKSI GAMBAR, SKALA X/Y & GESER POSISI   -->
+      <!-- =================================================================== -->
+      <div class="lg:col-span-7 order-1 lg:order-2 space-y-4">
+
+        <div class="bg-cyber-card border border-cyber-cyan/40 rounded-2xl p-3.5 sm:p-5 shadow-2xl space-y-3.5">
+          <!-- Header Simulator + Quick Upload Button untuk Android -->
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+            <div>
+              <h2 id="simHeaderTitle" class="text-xs sm:text-base font-extrabold text-white flex items-center gap-1.5">
+                <span>☂️ SIMULATOR & EDITOR LANGSUNG (1.352 LED)</span>
+              </h2>
+              <p id="simHeaderSub" class="text-[11px] text-slate-400">Sentuh & geser langsung di kanvas atau gunakan slider di bawah</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <label for="mediaInput" class="cursor-pointer px-2.5 py-1.5 rounded-lg bg-cyber-purple/20 text-purple-300 border border-cyber-purple/40 text-[11px] font-bold hover:bg-cyber-purple hover:text-white transition flex items-center gap-1">
+                <span>📁</span> <span>Ganti File</span>
+              </label>
+              <button id="btnToggleSim" onclick="toggleLaserSimulation()" class="px-2.5 py-1.5 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/40 text-[11px] font-bold hover:bg-cyber-cyan hover:text-black transition">
+                ⏸️ Pause
+              </button>
+            </div>
+          </div>
+
+          <!-- STICKY PREVIEW CONTAINER DI ANDROID: Agar saat geser slider di bawah, kanvas tetap terlihat -->
+          <div class="sticky top-[56px] z-20 bg-[#070a10]/95 backdrop-blur-md border border-slate-800/90 rounded-2xl p-2.5 sm:p-4 shadow-xl">
+
+            <!-- VIEWPORT 1: SIMULATOR PAYUNG LED (1.352 LED) -->
+            <div id="simViewportUmbrella" class="flex flex-col items-center justify-center">
+              <div class="relative w-full flex flex-col items-center justify-center">
+                <canvas id="canvasUmbrellaPreview" width="520" height="520" class="w-full max-w-[270px] sm:max-w-[380px] aspect-square rounded-full border border-slate-800 shadow-2xl cursor-move" title="Klik/Sentuh dan geser untuk mengatur posisi gambar"></canvas>
+
+                <!-- Floating Quick Badge di Pojok Kanvas -->
+                <div class="absolute top-1 left-1 bg-black/75 border border-slate-700/80 rounded-lg px-2 py-1 text-[10px] font-mono text-slate-300 pointer-events-none">
+                  🖐️ Geser Kanvas = Posisi X/Y
+                </div>
+                <button type="button" onclick="resetImageTransform()" class="absolute top-1 right-1 bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-cyber-cyan px-2 py-1 rounded-lg text-[10px] font-mono font-bold transition">
+                  ↺ Reset
+                </button>
+              </div>
+
+              <!-- Legend Ringkas -->
+              <div class="w-full flex flex-wrap items-center justify-between gap-2 text-[10px] sm:text-[11px] font-mono text-slate-400 mt-2.5 px-1">
+                <div class="flex items-center gap-3">
+                  <span class="flex items-center gap-1"><i class="inline-block w-2 h-2 rounded-full bg-cyber-cyan"></i> P1 (1-23)</span>
+                  <span class="flex items-center gap-1"><i class="inline-block w-2 h-2 rounded-full bg-cyber-purple"></i> P2 (24-33)</span>
+                </div>
+                <label class="flex items-center gap-1.5 cursor-pointer text-slate-300 select-none">
+                  <input type="checkbox" id="chkShowRingGuides" checked onchange="drawSimulatorFrame()" class="rounded accent-cyber-cyan">
+                  <span>Garis Jalur Kabel</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- VIEWPORT 2: SIMULATOR LEVIWAND POV (58 DOT LED) -->
+            <div id="simViewportLeviwand" class="hidden space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
+                <!-- Mode 1 Orbit -->
+                <div class="bg-[#05070b] border border-slate-800 rounded-xl p-2.5 flex flex-col items-center">
+                  <div class="w-full flex justify-between text-[10px] font-mono mb-1">
+                    <span class="text-cyber-cyan font-bold">PAKET A: ORBIT TEGAK</span>
+                    <span id="orbitResLabel" class="text-slate-400">120×58</span>
+                  </div>
+                  <canvas id="canvasOrbitPreview" width="480" height="232" class="w-full max-h-[150px] object-contain rounded cursor-move"></canvas>
+                </div>
+                <!-- Mode 2 Spin 360 -->
+                <div class="bg-[#05070b] border border-slate-800 rounded-xl p-2.5 flex flex-col items-center">
+                  <div class="w-full flex justify-between text-[10px] font-mono mb-1">
+                    <span class="text-purple-400 font-bold">PAKET B: SPIN 360°</span>
+                    <span id="spinResLabel" class="text-slate-400">Polar</span>
+                  </div>
+                  <canvas id="canvasSpinPreview" width="260" height="260" class="w-36 h-36 sm:w-40 sm:h-40 rounded-full border border-slate-800 cursor-move"></canvas>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- =============================================================== -->
+          <!-- DIV KOREKSI GAMBAR, SKALA X/Y & GESER POSISI (DI BAWAH PREVIEW) -->
+          <!-- =============================================================== -->
+          <div class="bg-[#0c1018] border border-cyber-cyan/30 rounded-2xl p-3.5 sm:p-4 space-y-3.5 shadow-inner">
+            <!-- Baris Header Koreksi + Tab Switcher (Agar Hemat Ruang di Android) -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-cyber-cyan">🎨 Koreksi Gambar, Skala & Posisi</span>
+              </div>
+
+              <!-- Sub-Tab: Posisi/Skala vs Warna/Arah -->
+              <div class="flex items-center gap-1 bg-[#070a10] p-1 rounded-xl border border-slate-800">
+                <button type="button" id="btnSubTabTransform" onclick="switchEditorSubTab('transform')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-cyber-cyan text-black transition">
+                  🔍 Skala & Geser
+                </button>
+                <button type="button" id="btnSubTabColor" onclick="switchEditorSubTab('color')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition">
+                  ☀️ Warna & Arah
+                </button>
+                <button type="button" onclick="resetImageTransform()" class="px-2 py-1 rounded-lg text-[11px] font-bold text-rose-400 hover:bg-rose-500/10 transition" title="Reset Semua">
+                  ↺
+                </button>
+              </div>
+            </div>
+
+            <!-- SUB-PANEL 1: SKALA X/Y & GESER POSISI X/Y -->
+            <div id="subPanelTransform" class="space-y-3">
+              <!-- Baris Kunci Skala + Tombol Cepat Fit -->
+              <div class="flex flex-wrap items-center justify-between gap-2 bg-[#111723] px-3 py-2 rounded-xl border border-slate-800/80">
+                <label class="flex items-center gap-2 text-xs font-bold text-cyber-green cursor-pointer select-none">
+                  <input type="checkbox" id="chkLockScaleXY" checked onchange="onToggleLockScale()" class="w-4 h-4 rounded accent-cyber-green">
+                  <span>🔗 Kunci Skala X & Y Bareng</span>
+                </label>
+                <div class="flex items-center gap-1">
+                  <button type="button" onclick="applyQuickScale(75)" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300">75%</button>
+                  <button type="button" onclick="applyQuickScale(100)" class="px-2 py-0.5 rounded bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/30 text-[10px] font-mono font-bold">100%</button>
+                  <button type="button" onclick="applyQuickScale(135)" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[10px] font-mono text-slate-300">135%</button>
+                  <button type="button" onclick="centerImagePosition()" class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[10px] font-mono font-bold">🎯 Tengah</button>
+                </div>
+              </div>
+
+              <!-- Grid 2x2: Skala X, Skala Y, Geser X, Geser Y -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Skala X -->
+                <div class="bg-[#090d14] border border-slate-800/90 rounded-xl p-2.5">
+                  <div class="flex justify-between items-center text-xs mb-1.5">
+                    <span class="text-slate-300 font-semibold">↔️ Skala X (Lebar)</span>
+                    <div class="flex items-center gap-1">
+                      <button type="button" onclick="stepSlider('scaleXRange', -5, 'scaleX')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">-</button>
+                      <span id="scaleXValLbl" class="font-mono font-bold text-cyber-cyan w-12 text-center">100%</span>
+                      <button type="button" onclick="stepSlider('scaleXRange', 5, 'scaleX')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">+</button>
+                    </div>
+                  </div>
+                  <input type="range" id="scaleXRange" min="15" max="300" step="1" value="100" oninput="handleScaleChange('x', this.value)" class="w-full">
+                </div>
+
+                <!-- Skala Y -->
+                <div class="bg-[#090d14] border border-slate-800/90 rounded-xl p-2.5">
+                  <div class="flex justify-between items-center text-xs mb-1.5">
+                    <span class="text-slate-300 font-semibold">↕️ Skala Y (Tinggi)</span>
+                    <div class="flex items-center gap-1">
+                      <button type="button" onclick="stepSlider('scaleYRange', -5, 'scaleY')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">-</button>
+                      <span id="scaleYValLbl" class="font-mono font-bold text-cyber-cyan w-12 text-center">100%</span>
+                      <button type="button" onclick="stepSlider('scaleYRange', 5, 'scaleY')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">+</button>
+                    </div>
+                  </div>
+                  <input type="range" id="scaleYRange" min="15" max="300" step="1" value="100" oninput="handleScaleChange('y', this.value)" class="w-full">
+                </div>
+
+                <!-- Geser X -->
+                <div class="bg-[#090d14] border border-slate-800/90 rounded-xl p-2.5">
+                  <div class="flex justify-between items-center text-xs mb-1.5">
+                    <span class="text-slate-300 font-semibold">⬅️➡️ Geser X (Kiri/Kanan)</span>
+                    <div class="flex items-center gap-1">
+                      <button type="button" onclick="stepSlider('offsetXRange', -2, 'offset')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">◀</button>
+                      <span id="offsetXValLbl" class="font-mono font-bold text-purple-300 w-12 text-center">0%</span>
+                      <button type="button" onclick="stepSlider('offsetXRange', 2, 'offset')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">▶</button>
+                    </div>
+                  </div>
+                  <input type="range" id="offsetXRange" min="-100" max="100" step="1" value="0" oninput="handleOffsetChange()" class="w-full">
+                </div>
+
+                <!-- Geser Y -->
+                <div class="bg-[#090d14] border border-slate-800/90 rounded-xl p-2.5">
+                  <div class="flex justify-between items-center text-xs mb-1.5">
+                    <span class="text-slate-300 font-semibold">⬆️⬇️ Geser Y (Atas/Bawah)</span>
+                    <div class="flex items-center gap-1">
+                      <button type="button" onclick="stepSlider('offsetYRange', -2, 'offset')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">▲</button>
+                      <span id="offsetYValLbl" class="font-mono font-bold text-purple-300 w-12 text-center">0%</span>
+                      <button type="button" onclick="stepSlider('offsetYRange', 2, 'offset')" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">▼</button>
+                    </div>
+                  </div>
+                  <input type="range" id="offsetYRange" min="-100" max="100" step="1" value="0" oninput="handleOffsetChange()" class="w-full">
+                </div>
+              </div>
+            </div>
+
+            <!-- SUB-PANEL 2: WARNA (GAMMA, BRIGHTNESS) & ORIENTASI (FLIP / MIRROR / WIRING) -->
+            <div id="subPanelColor" class="hidden space-y-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="bg-[#090d14] border border-slate-800/90 rounded-xl p-2.5">
+                  <div class="flex justify-between text-xs mb-1.5">
+                    <span class="text-slate-300 font-semibold">🌗 Ketajaman Gamma LED:</span>
+                    <span id="gammaValLbl" class="font-mono font-bold text-cyber-cyan">2.0</span>
+                  </div>
+                  <input type="range" id="gammaRange" min="1.0" max="2.8" step="0.1" value="2.0" oninput="document.getElementById('gammaValLbl').innerText=this.value; refreshPreviewAndStats()" class="w-full">
+                </div>
+
+                <div class="bg-[#090d14] border border-slate-800/90 rounded-xl p-2.5">
+                  <div class="flex justify-between text-xs mb-1.5">
+                    <span class="text-slate-300 font-semibold">☀️ Master Brightness:</span>
+                    <span id="briValLbl" class="font-mono font-bold text-cyber-cyan">100%</span>
+                  </div>
+                  <input type="range" id="briRange" min="40" max="150" step="5" value="100" oninput="document.getElementById('briValLbl').innerText=this.value+'%'; refreshPreviewAndStats()" class="w-full">
+                </div>
+              </div>
+
+              <!-- Flip & Mirror Cepat -->
+              <div class="grid grid-cols-2 gap-2.5">
+                <label class="flex items-center justify-center gap-2 bg-[#090d14] border border-slate-800 hover:border-cyber-cyan px-3 py-2.5 rounded-xl cursor-pointer text-xs font-semibold select-none">
+                  <input type="checkbox" id="chkFlipVert" onchange="refreshPreviewAndStats()" class="w-4 h-4 rounded accent-cyber-cyan">
+                  <span>↕️ Balik Atas-Bawah</span>
+                </label>
+                <label class="flex items-center justify-center gap-2 bg-[#090d14] border border-slate-800 hover:border-cyber-cyan px-3 py-2.5 rounded-xl cursor-pointer text-xs font-semibold select-none">
+                  <input type="checkbox" id="chkMirrorHoriz" onchange="refreshPreviewAndStats()" class="w-4 h-4 rounded accent-cyber-cyan">
+                  <span>↔️ Mirror Kiri-Kanan</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Baris Info Mini Frame Asli + Tombol Cepat Download .BIN untuk pengguna HP -->
+            <div class="pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <canvas id="canvasRawSource" width="120" height="120" class="w-10 h-10 rounded-lg border border-slate-700 bg-black flex-shrink-0"></canvas>
+                <div class="text-[11px] leading-tight">
+                  <div class="font-bold text-slate-200">Input 2D Master</div>
+                  <div id="rawSourceDim" class="text-slate-400 font-mono text-[10px]">240 × 240 px</div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="generateAndDownloadBin()" class="px-3 py-2 rounded-xl bg-cyber-cyan text-black font-extrabold text-xs shadow hover:bg-cyan-300 transition flex items-center gap-1">
+                  <span>⬇️</span> <span>Simpan .BIN</span>
+                </button>
+                <button type="button" onclick="sendBinDirectlyToController()" class="px-3 py-2 rounded-xl bg-cyber-green text-black font-extrabold text-xs shadow hover:bg-emerald-400 transition flex items-center gap-1">
+                  <span>📡</span> <span>Kirim WiFi</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- KOLOM KIRI (DI ANDROID TAMPIL DI BAWAH EDITOR / ORDER-2):           -->
+      <!-- SUMBER MEDIA, PEMETAAN GEOMETRI & EKSPOR LENGKAP                    -->
+      <!-- =================================================================== -->
+      <div class="lg:col-span-5 order-2 lg:order-1 space-y-5">
 
         <!-- 1. Card Sumber Media (Single / Batch Upload & Generator Built-in) -->
-        <section class="bg-cyber-card border border-cyber-border rounded-2xl p-5 shadow-xl">
+        <section class="bg-cyber-card border border-cyber-border rounded-2xl p-4 sm:p-5 shadow-xl">
           <div class="flex items-center justify-between mb-3">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-cyber-cyan flex items-center gap-2">
+            <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-cyber-cyan flex items-center gap-2">
               <span>1. Sumber Gambar / Video</span>
             </h2>
             <span id="mediaTypeBadge" class="text-[11px] font-mono bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-md">Generator Preset</span>
@@ -138,10 +399,10 @@
 
           <!-- Panel Upload File -->
           <div id="panelUpload" class="space-y-3">
-            <label for="mediaInput" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-slate-700 hover:border-cyber-cyan rounded-xl cursor-pointer bg-[#0d111a] hover:bg-slate-900/60 transition p-4 text-center">
+            <label for="mediaInput" class="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-slate-700 hover:border-cyber-cyan rounded-xl cursor-pointer bg-[#0d111a] hover:bg-slate-900/60 transition p-3 text-center">
               <div class="text-2xl mb-1">🖼️ 🎬 📦</div>
-              <p class="text-xs font-semibold text-slate-200">Klik atau Tarik 1 / Banyak File (<span class="text-cyber-cyan">.PNG, .JPG, .WEBP, .MP4, .WEBM</span>)</p>
-              <p id="fileNameLabel" class="text-[11px] text-slate-400 mt-1 font-mono truncate max-w-full">Belum ada file dipilih (Menggunakan Generator Demo)</p>
+              <p class="text-xs font-semibold text-slate-200">Klik / Pilih File (<span class="text-cyber-cyan">.PNG, .JPG, .WEBP, .MP4</span>)</p>
+              <p id="fileNameLabel" class="text-[11px] text-slate-400 mt-1 font-mono truncate max-w-full">Belum ada file dipilih (Generator Demo)</p>
               <input id="mediaInput" type="file" multiple accept="image/*,video/mp4,video/webm,video/quicktime" class="hidden" onchange="handleFileUpload(event)">
             </label>
 
@@ -152,11 +413,11 @@
                   <button id="btnVideoPlayPause" type="button" onclick="toggleUploadedVideoPlayback()" class="px-2.5 py-1 rounded-lg bg-cyber-cyan text-black font-extrabold text-xs flex items-center gap-1 hover:bg-cyan-300 transition">
                     <span>⏸️</span> <span id="lblVideoPlayPause">Pause Video</span>
                   </button>
-                  <span class="text-[11px] font-mono text-cyber-green font-bold">● LIVE MP4 PREVIEW</span>
+                  <span class="text-[11px] font-mono text-cyber-green font-bold">● LIVE MP4</span>
                 </div>
                 <span id="videoTimeCounter" class="text-[11px] font-mono text-slate-300">0.0s / 0.0s</span>
               </div>
-              <input type="range" id="videoTimelineSeek" min="0" max="1000" value="0" oninput="seekUploadedVideo(this.value)" class="w-full h-1.5">
+              <input type="range" id="videoTimelineSeek" min="0" max="1000" value="0" oninput="seekUploadedVideo(this.value)" class="w-full">
             </div>
 
             <!-- Daftar Batch File -->
@@ -189,9 +450,6 @@
                   <input type="number" id="maxVideoFrames" value="50" min="1" max="1200" onchange="updateSizeEstimation()" class="w-full bg-[#141926] border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono">
                 </div>
               </div>
-              <p class="text-[10px] text-slate-400">
-                *Untuk gambar statis atau generator efek pada Payung LED, Anda bisa mengekspor <b>1 Frame</b> (gambar diam) atau <b>Animasi Berputar Otomatis</b> sesuai jumlah frame di atas.
-              </p>
             </div>
           </div>
 
@@ -199,16 +457,16 @@
           <div id="panelPreset" class="hidden space-y-3">
             <div class="grid grid-cols-2 gap-2">
               <button onclick="selectPreset('umbrellaMandala')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-left flex items-center gap-2">
-                <span>🏵️</span> <span>Mandala Payung Nusantara</span>
+                <span>🏵️</span> <span>Mandala Payung</span>
               </button>
               <button onclick="selectPreset('cyberLogo')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-left flex items-center gap-2">
-                <span>⚡</span> <span>Turbine Cyber & Cincin</span>
+                <span>⚡</span> <span>Turbine Cyber</span>
               </button>
               <button onclick="selectPreset('neonGrid')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-left flex items-center gap-2">
                 <span>🌈</span> <span>Spiral Pelangi 360°</span>
               </button>
               <button onclick="selectPreset('customText')" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-xs font-semibold text-left flex items-center gap-2">
-                <span>🔤</span> <span>Teks / Nama Panggung</span>
+                <span>🔤</span> <span>Teks Panggung</span>
               </button>
             </div>
             <div class="pt-1 space-y-2">
@@ -216,7 +474,7 @@
                 <label class="text-[11px] text-slate-400">Teks & Warna Aksen:</label>
                 <label class="flex items-center gap-1.5 text-[11px] text-cyber-green cursor-pointer">
                   <input type="checkbox" id="chkAnimatePreset" checked onchange="updateSizeEstimation()" class="rounded accent-cyber-green">
-                  <span>Render Preset Sebagai Video Berputar</span>
+                  <span>Render Video Berputar</span>
                 </label>
               </div>
               <div class="flex gap-2">
@@ -228,12 +486,12 @@
         </section>
 
         <!-- 2A. KONFIGURASI KHUSUS PAYUNG LED (1.352 LED - HORIZONTAL SERPENTINE BAWAH KE ATAS) -->
-        <section id="configCardUmbrella" class="bg-cyber-card border border-cyber-cyan/40 rounded-2xl p-5 shadow-xl space-y-3.5">
+        <section id="configCardUmbrella" class="bg-cyber-card border border-cyber-cyan/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-3.5">
           <div class="flex items-center justify-between">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-cyber-cyan flex items-center gap-2">
-              <span>2. Pemetaan Jalur Kabel Payung (1.352 LED)</span>
+            <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-cyber-cyan flex items-center gap-2">
+              <span>2. Jalur Kabel Payung (1.352 LED)</span>
             </h2>
-            <span class="text-[11px] font-mono bg-cyber-green/15 text-cyber-green border border-cyber-green/30 px-2.5 py-0.5 rounded-md font-bold">⚡ Zig-Zag Bawah ➔ Atas</span>
+            <span class="text-[10px] font-mono bg-cyber-green/15 text-cyber-green border border-cyber-green/30 px-2 py-0.5 rounded-md font-bold">⚡ Zig-Zag Bawah➔Atas</span>
           </div>
 
           <div class="grid grid-cols-1 gap-2.5 text-xs">
@@ -265,16 +523,16 @@
 
           <div class="bg-[#0b0f17] border border-slate-800 rounded-xl p-3 text-[11px] font-mono text-slate-400 space-y-1">
             <div class="text-slate-200 font-bold">📐 Urutan Wiring Fisik Payung (4.056 Bytes/Frame):</div>
-            <div>• <span class="text-cyber-green">Mulai P1 Baris 1 (Bawah):</span> 17 LED (Kiri ➔ Kanan) ➔ naik ke Baris 2: 21 LED (Kanan ➔ Kiri)</div>
+            <div>• <span class="text-cyber-green">Mulai P1 Baris 1 (Bawah):</span> 17 LED (Kiri➔Kanan) ➔ naik ke Baris 2: 21 LED (Kanan➔Kiri)</div>
             <div>• <span class="text-cyber-cyan">P1 (Baris 1–23 = 990 LED):</span> [17, 21, 27, 33, 35, 37, 39, 41, 43, 45, 47, 49, 49, 51, 51, 51, 51, 51, 50, 51, 52, 50, 49]</div>
-            <div>• <span class="text-cyber-purple">P2 (Baris 24–33 = 362 LED):</span> [47, 47, 45, 43, 40, 36, 34, 29, 23, 18] (Sampai Puncak Atas)</div>
+            <div>• <span class="text-cyber-purple">P2 (Baris 24–33 = 362 LED):</span> [47, 47, 45, 43, 40, 36, 34, 29, 23, 18]</div>
           </div>
         </section>
 
         <!-- 2B. KONFIGURASI KHUSUS LEVIWAND POV (58 DOT LED) -->
-        <section id="configCardLeviwand" class="hidden bg-cyber-card border border-cyber-purple/40 rounded-2xl p-5 shadow-xl space-y-4">
+        <section id="configCardLeviwand" class="hidden bg-cyber-card border border-cyber-purple/40 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
           <div class="flex items-center justify-between">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-purple-300 flex items-center gap-2">
+            <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-purple-300 flex items-center gap-2">
               <span>2. Konfigurasi Smart Dual-Mode Leviwand</span>
             </h2>
             <span class="text-[11px] font-mono bg-cyber-purple/20 text-purple-300 px-2 py-0.5 rounded font-bold">58 Dot LED</span>
@@ -282,7 +540,7 @@
 
           <div>
             <label class="text-xs font-semibold text-slate-300 block mb-1.5">Mode Struktur File <code class="text-cyber-cyan">.bin</code> Leviwand:</label>
-            <select id="binModeSelect" onchange="refreshPreviewAndStats()" class="w-full bg-[#0d111a] border border-cyber-purple/50 rounded-xl px-3 py-2.5 text-xs sm:text-sm font-bold text-white">
+            <select id="binModeSelect" onchange="refreshPreviewAndStats()" class="w-full bg-[#0d111a] border border-cyber-purple/50 rounded-xl px-3 py-2.5 text-xs font-bold text-white">
               <option value="dual" selected>🧠 Smart Dual-Mode Hybrid (Paket A Orbit + Paket B Spin 360°)</option>
               <option value="orbit">🎯 Single Mode 1: Portrait Circle Orbit Saja (Cartesian Tegak)</option>
               <option value="spin">🔄 Single Mode 2: 360° Spinning Saja (Polar Radial Melingkar)</option>
@@ -307,98 +565,12 @@
           </div>
         </section>
 
-        <!-- PENGATURAN KOREKSI GAMBAR, SKALA X/Y, POSISI GESER X/Y & WARNA -->
-        <section class="bg-cyber-card border border-cyber-border rounded-2xl p-5 shadow-xl space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-            <h2 class="text-xs font-bold uppercase tracking-wider text-cyber-cyan flex items-center gap-1.5">
-              <span>🎨 Koreksi Gambar, Skala X/Y & Geser Posisi</span>
-            </h2>
-            <button type="button" onclick="resetImageTransform()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-slate-300 border border-slate-700 transition">
-              ↺ Reset Posisi & Skala
-            </button>
-          </div>
-
-          <!-- Kontrol Skala X & Y -->
-          <div class="bg-[#0c1018] border border-slate-800/90 rounded-xl p-3.5 space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-white">🔍 Skala Ukuran Materi (Zoom X & Y)</span>
-              <label class="flex items-center gap-1.5 text-[11px] font-semibold text-cyber-green cursor-pointer select-none">
-                <input type="checkbox" id="chkLockScaleXY" checked onchange="onToggleLockScale()" class="rounded accent-cyber-green">
-                <span>🔗 Kunci Skala X & Y Bareng</span>
-              </label>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <div class="flex justify-between text-[11px] mb-1">
-                  <span class="text-slate-400">Skala X (Lebar):</span>
-                  <span id="scaleXValLbl" class="font-mono font-bold text-cyber-cyan">100%</span>
-                </div>
-                <input type="range" id="scaleXRange" min="15" max="300" step="1" value="100" oninput="handleScaleChange('x', this.value)" class="w-full">
-              </div>
-
-              <div>
-                <div class="flex justify-between text-[11px] mb-1">
-                  <span class="text-slate-400">Skala Y (Tinggi):</span>
-                  <span id="scaleYValLbl" class="font-mono font-bold text-cyber-cyan">100%</span>
-                </div>
-                <input type="range" id="scaleYRange" min="15" max="300" step="1" value="100" oninput="handleScaleChange('y', this.value)" class="w-full">
-              </div>
-            </div>
-
-            <!-- Kontrol Geser Posisi Materi X & Y -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
-              <div>
-                <div class="flex justify-between text-[11px] mb-1">
-                  <span class="text-slate-400">↔️ Geser X (Kiri/Kanan):</span>
-                  <span id="offsetXValLbl" class="font-mono font-bold text-purple-300">0%</span>
-                </div>
-                <input type="range" id="offsetXRange" min="-100" max="100" step="1" value="0" oninput="handleOffsetChange()" class="w-full">
-              </div>
-
-              <div>
-                <div class="flex justify-between text-[11px] mb-1">
-                  <span class="text-slate-400">↕️ Geser Y (Atas/Bawah):</span>
-                  <span id="offsetYValLbl" class="font-mono font-bold text-purple-300">0%</span>
-                </div>
-                <input type="range" id="offsetYRange" min="-100" max="100" step="1" value="0" oninput="handleOffsetChange()" class="w-full">
-              </div>
-            </div>
-          </div>
-
-          <!-- Koreksi Gamma & Brightness -->
-          <div class="space-y-2.5 pt-1">
-            <div class="flex items-center justify-between">
-              <label class="text-xs text-slate-300">Koreksi Gamma LED (Ketajaman Kontras):</label>
-              <span id="gammaValLbl" class="text-xs font-mono font-bold text-cyber-cyan">2.0</span>
-            </div>
-            <input type="range" id="gammaRange" min="1.0" max="2.8" step="0.1" value="2.0" oninput="document.getElementById('gammaValLbl').innerText=this.value; refreshPreviewAndStats()" class="w-full">
-
-            <div class="flex items-center justify-between">
-              <label class="text-xs text-slate-300">Master Brightness Boost:</label>
-              <span id="briValLbl" class="text-xs font-mono font-bold text-cyber-cyan">100%</span>
-            </div>
-            <input type="range" id="briRange" min="40" max="150" step="5" value="100" oninput="document.getElementById('briValLbl').innerText=this.value+'%'; refreshPreviewAndStats()" class="w-full">
-          </div>
-
-          <div class="grid grid-cols-2 gap-2 pt-1">
-            <label class="flex items-center gap-2 bg-[#0d111a] border border-slate-800 px-3 py-2 rounded-xl cursor-pointer text-xs">
-              <input type="checkbox" id="chkFlipVert" onchange="refreshPreviewAndStats()" class="rounded accent-cyber-cyan">
-              <span>↕️ Balik Gambar Atas-Bawah</span>
-            </label>
-            <label class="flex items-center gap-2 bg-[#0d111a] border border-slate-800 px-3 py-2 rounded-xl cursor-pointer text-xs">
-              <input type="checkbox" id="chkMirrorHoriz" onchange="refreshPreviewAndStats()" class="rounded accent-cyber-cyan">
-              <span>↔️ Mirror Gambar Kiri-Kanan</span>
-            </label>
-          </div>
-        </section>
-
         <!-- 3. Card Ringkasan File & Tombol Generate / Kirim WiFi -->
-        <section class="bg-gradient-to-b from-[#151b28] to-cyber-card border border-cyber-cyan/40 rounded-2xl p-5 shadow-2xl space-y-4">
+        <section class="bg-gradient-to-b from-[#151b28] to-cyber-card border border-cyber-cyan/40 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
           <div class="flex items-center justify-between">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-white">3. Ekspor .BIN & Upload ke Controller</h2>
-            <span id="ramStatusBadge" class="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-green/20 text-cyber-green border border-cyber-green/40 font-bold">
-              ⚡ Muat di PSRAM Cache
+            <h2 class="text-xs sm:text-sm font-bold uppercase tracking-wider text-white">3. Ekspor .BIN & Upload ke Controller</h2>
+            <span id="ramStatusBadge" class="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-green/20 text-cyber-green border border-cyber-green/40 font-bold">
+              ⚡ PSRAM Cache
             </span>
           </div>
 
@@ -457,115 +629,13 @@
               <span>Upload ke 192.168.4.1</span>
             </button>
           </div>
-          <p class="text-[11px] text-slate-400 text-center">
-            *Mendukung <b>64KB PSRAM Write-Buffer v0.0.7</b> untuk upload langsung ke Payung LED maupun Leviwand tanpa terputus.
+          <p id="activePropFooterLbl" class="text-[11px] text-slate-400 text-center font-mono">
+            Target Aktif: Payung 1.352 LED (64KB PSRAM Write-Buffer v0.0.7)
           </p>
         </section>
 
       </div>
 
-      <!-- KOLOM KANAN: SIMULATOR INTERAKTIF PAYUNG LED & LEVIWAND (7 Kolom) -->
-      <div class="lg:col-span-7 space-y-5">
-
-        <div class="bg-cyber-card border border-cyber-border rounded-2xl p-5 shadow-xl space-y-5">
-          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3.5">
-            <div>
-              <h2 id="simHeaderTitle" class="text-sm sm:text-base font-extrabold text-white flex items-center gap-2">
-                <span>☂️ SIMULATOR KANVAS PAYUNG LED (1.352 PIXEL ZIG-ZAG)</span>
-              </h2>
-              <p id="simHeaderSub" class="text-xs text-slate-400">Jalur Horizontal Zig-Zag: P1 Baris 1 (17 LED Bawah, Kiri➔Kanan) naik ke P2 Baris 33 (18 LED Atas)</p>
-            </div>
-            <div class="flex items-center gap-2">
-              <button id="btnToggleSim" onclick="toggleLaserSimulation()" class="px-3 py-1.5 rounded-lg bg-cyber-cyan/15 text-cyber-cyan border border-cyber-cyan/40 text-xs font-bold hover:bg-cyber-cyan hover:text-black transition">
-                ⏸️ Pause Animasi
-              </button>
-            </div>
-          </div>
-
-          <!-- VIEWPORT 1: SIMULATOR PAYUNG LED (1.352 LED) -->
-          <div id="simViewportUmbrella" class="space-y-4">
-            <div class="relative w-full bg-[#06080c] border border-slate-800 rounded-2xl p-4 flex flex-col items-center justify-center">
-              <canvas id="canvasUmbrellaPreview" width="520" height="520" class="w-full max-w-[460px] aspect-square rounded-full border border-slate-800/80 shadow-2xl"></canvas>
-
-              <div class="w-full flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-slate-400 mt-3 px-2">
-                <div class="flex items-center gap-2">
-                  <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyber-cyan"></span>
-                  <span>P1: Baris 1–23 (Bawah ke Tengah, 990 LED)</span>
-                </div>
-                <div class="flex items-center gap-2">
-                  <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyber-purple"></span>
-                  <span>P2: Baris 24–33 (Tengah ke Atas, 362 LED)</span>
-                </div>
-                <label class="flex items-center gap-1.5 cursor-pointer text-slate-300">
-                  <input type="checkbox" id="chkShowRingGuides" checked onchange="drawSimulatorFrame()" class="rounded accent-cyber-cyan">
-                  <span>Tampilkan Jalur Kabel Zig-Zag</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <!-- VIEWPORT 2: SIMULATOR LEVIWAND POV (58 DOT LED) -->
-          <div id="simViewportLeviwand" class="hidden space-y-5">
-            <!-- SIMULATOR MODE 1: PORTRAIT CIRCLE ORBIT -->
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="px-2 py-0.5 text-[11px] font-mono font-bold rounded bg-cyber-cyan text-black">PAKET A • MODE 1</span>
-                  <h3 class="text-xs sm:text-sm font-bold text-slate-200">Portrait Circle Orbit (Tegak Mengelilingi Tubuh)</h3>
-                </div>
-                <span id="orbitResLabel" class="text-xs font-mono text-cyber-cyan">120 × 58 LED</span>
-              </div>
-
-              <div class="relative w-full bg-[#06080c] border border-slate-800 rounded-xl p-3 flex flex-col items-center justify-center overflow-hidden">
-                <canvas id="canvasOrbitPreview" width="480" height="232" class="w-full max-h-[240px] object-contain rounded-lg"></canvas>
-                <div class="w-full flex justify-between text-[10px] font-mono text-slate-500 mt-2 px-1">
-                  <span>◀ Kolom 0 (Awal Ayunan)</span>
-                  <span class="text-cyber-cyan">Garis Putih = Posisi Tongkat 58 LED Berjalan</span>
-                  <span>Kolom Akhir ▶</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- SIMULATOR MODE 2: 360° SPINNING PROPELLER -->
-            <div class="space-y-2 pt-1">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <span class="px-2 py-0.5 text-[11px] font-mono font-bold rounded bg-cyber-purple text-white">PAKET B • MODE 2</span>
-                  <h3 class="text-xs sm:text-sm font-bold text-slate-200">360° Spinning (Putaran Baling-Baling Penuh)</h3>
-                </div>
-                <span id="spinResLabel" class="text-xs font-mono text-purple-400">Polar Radial 360° (Poros di LED #29)</span>
-              </div>
-
-              <div class="flex flex-col sm:flex-row items-center justify-center gap-5 bg-[#06080c] border border-slate-800 rounded-xl p-4">
-                <canvas id="canvasSpinPreview" width="300" height="300" class="w-60 h-60 sm:w-64 sm:h-64 rounded-full border border-slate-800/90 shadow-inner"></canvas>
-                <div class="text-xs text-slate-400 space-y-2 max-w-xs">
-                  <div class="font-bold text-purple-300">🌀 Auto-Detect Gyro MPU6050:</div>
-                  <p class="text-[11px] leading-relaxed">
-                    Saat leviwand berputar vertikal 360°, sensor otomatis berpindah membaca <b>Paket B (Polar Radial)</b> dalam 0,15 detik tanpa menyentuh Web UI.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Footer Preview Sumber Frame Asli -->
-          <div class="bg-[#0e131d] border border-slate-800 p-3 rounded-xl flex items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-              <canvas id="canvasRawSource" width="120" height="120" class="w-14 h-14 rounded-lg border border-slate-700 bg-black flex-shrink-0"></canvas>
-              <div class="text-xs space-y-0.5">
-                <div class="font-bold text-white">Sumber Frame Input (2D Master)</div>
-                <div id="rawSourceDim" class="text-slate-400 font-mono text-[11px]">240 × 240 px</div>
-              </div>
-            </div>
-            <div class="text-right font-mono text-[11px]">
-              <div class="text-cyber-green font-bold">● Engine Siap Render</div>
-              <div id="activePropFooterLbl" class="text-slate-400">Target: Payung 1.352 LED</div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
     </div>
   </main>
 
@@ -588,7 +658,7 @@
         <div class="bg-[#0b0e15] border border-slate-800 rounded-xl p-4 space-y-2">
           <div class="font-bold text-white text-sm">🚀 Cara 1: Pakai Mirror Server Instan (raw.githack.com / Statically)</div>
           <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-300">
-            <li>Klik tombol <b>"💾 Unduh .HTML"</b> di pojok kanan atas halaman ini.</li>
+            <li>Klik tombol <b>"💾 .HTML"</b> di pojok kanan atas halaman ini.</li>
             <li>Buka akun <a href="https://github.com" target="_blank" class="text-cyber-cyan underline">GitHub.com</a> kamu, buat repository publik baru (misal: <code class="text-cyber-green">trisuka-pixel</code>).</li>
             <li>Upload file <code class="text-cyber-green">index.html</code> tersebut ke dalam repository.</li>
             <li>Kamu bisa langsung membukanya lewat server mirror CDN gratis cukup dengan menempelkan URL file GitHub kamu ke:
@@ -644,7 +714,6 @@
     const UMBRELLA_TOTAL_LEDS = 1352;
     const UMBRELLA_FRAME_BYTES = UMBRELLA_TOTAL_LEDS * 3; // 4.056 Bytes per Frame
 
-    // Tabel koordinat Pre-computed untuk setiap LED (0..1351) pada Payung
     let umbrellaLedCoords = [];
 
     // =========================================================================
@@ -657,7 +726,6 @@
     let uploadedVideoFile = null;
     let batchFilesQueue = [];
 
-    // Buffer data piksel hasil konversi frame aktif
     let currentUmbrellaFrameData = new Uint8Array(UMBRELLA_FRAME_BYTES);
     let currentOrbitColsData = null;
     let currentSpinColsData  = null;
@@ -682,10 +750,6 @@
     // 1. PEMBANGUN TABEL GEOMETRI 1.352 LED PAYUNG (HORIZONTAL ZIG-ZAG BAWAH KE ATAS)
     // =========================================================================
     function rebuildUmbrellaGeometry() {
-      // Sesuai wiring fisik Payung LED:
-      // - Mulai dari P1 Baris 1 (17 LED) di bagian BAWAH, berjalan dari Kiri ke Kanan
-      // - Naik 1 tingkat ke P1 Baris 2 (21 LED), berjalan dari Kanan ke Kiri
-      // - Zig-zag horizontal terus naik ke atas sampai P2 Baris 33 (18 LED) di puncak atas
       const spanModeEl = document.getElementById('umbrellaSpanMode');
       const spanMode = spanModeEl ? spanModeEl.value : 'chord';
 
@@ -704,17 +768,13 @@
         const countInRow = UMBRELLA_ALL_ROWS[r];
         const isP2 = (r >= UMBRELLA_P1_ROWS.length);
 
-        // Baris genap (index r=0,2,4 -> Baris 1,3,5): Kiri ke Kanan
-        // Baris ganjil (index r=1,3,5 -> Baris 2,4,6): Kanan ke Kiri
         const isEvenRow = (r % 2 === 0);
         const goLeftToRight = startLeftToRight ? isEvenRow : !isEvenRow;
 
-        // Posisi vertikal Y: r=0 di bagian bawah (Y=0.95), r=32 di bagian atas (Y=0.05)
         const rowNorm = r / (totalRows - 1); // 0.0 .. 1.0
         const rawY = bottomToTop ? (1.0 - rowNorm) : rowNorm;
         const normY = 0.04 + rawY * 0.92;
 
-        // Lebar baris mengikuti proporsi jumlah LED pada baris tersebut terhadap diameter 52 LED
         const rowWidthRatio = (spanMode === 'chord') ? ((countInRow / maxCols) * 0.92) : 0.92;
         const xStart = 0.5 - (rowWidthRatio * 0.5);
 
@@ -723,7 +783,6 @@
           const fracX = (countInRow > 1) ? (colPos / (countInRow - 1)) : 0.5;
           const normX = xStart + fracX * rowWidthRatio;
 
-          // Koordinat relatif terhadap titik pusat payung (0.5, 0.5)
           const dx = normX - 0.5;
           const dy = normY - 0.5;
           const radiusNorm = Math.sqrt(dx * dx + dy * dy) * 2.0;
@@ -745,8 +804,53 @@
     }
 
     // =========================================================================
-    // KONTROL SKALA X/Y & GESER POSISI X/Y (TRANSFORMASI MATERI)
+    // KONTROL SUB-TAB, SKALA X/Y, GESER POSISI X/Y & TOUCH DRAG DI KANVAS
     // =========================================================================
+    function switchEditorSubTab(tab) {
+      const btnT = document.getElementById('btnSubTabTransform');
+      const btnC = document.getElementById('btnSubTabColor');
+      const pT = document.getElementById('subPanelTransform');
+      const pC = document.getElementById('subPanelColor');
+
+      if (tab === 'transform') {
+        btnT.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-cyber-cyan text-black transition';
+        btnC.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition';
+        pT.classList.remove('hidden');
+        pC.classList.add('hidden');
+      } else {
+        btnC.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-cyber-cyan text-black transition';
+        btnT.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold text-slate-400 hover:text-white transition';
+        pC.classList.remove('hidden');
+        pT.classList.add('hidden');
+      }
+    }
+
+    function stepSlider(sliderId, delta, mode) {
+      const el = document.getElementById(sliderId);
+      if (!el) return;
+      const nextVal = Math.min(parseFloat(el.max), Math.max(parseFloat(el.min), parseFloat(el.value) + delta));
+      el.value = nextVal;
+      if (mode === 'scaleX') handleScaleChange('x', nextVal);
+      else if (mode === 'scaleY') handleScaleChange('y', nextVal);
+      else handleOffsetChange();
+    }
+
+    function applyQuickScale(pct) {
+      document.getElementById('scaleXRange').value = pct;
+      document.getElementById('scaleYRange').value = pct;
+      document.getElementById('scaleXValLbl').innerText = pct + '%';
+      document.getElementById('scaleYValLbl').innerText = pct + '%';
+      refreshPreviewAndStats();
+    }
+
+    function centerImagePosition() {
+      document.getElementById('offsetXRange').value = 0;
+      document.getElementById('offsetYRange').value = 0;
+      document.getElementById('offsetXValLbl').innerText = '0%';
+      document.getElementById('offsetYValLbl').innerText = '0%';
+      refreshPreviewAndStats();
+    }
+
     function onToggleLockScale() {
       const locked = document.getElementById('chkLockScaleXY').checked;
       if (locked) {
@@ -795,7 +899,70 @@
       document.getElementById('chkFlipVert').checked = false;
       document.getElementById('chkMirrorHoriz').checked = false;
       refreshPreviewAndStats();
-      showToast('Skala X/Y dan posisi geser materi di-reset ke 100% (Tengah).');
+      showToast('Posisi & Skala di-reset ke 100% (Tengah).');
+    }
+
+    // Fitur Drag Langsung di Kanvas Preview (Untuk Jari Android & Mouse PC)
+    function initCanvasTouchAndMouseDrag() {
+      let isDragging = false;
+      let startX = 0, startY = 0;
+      let initOffX = 0, initOffY = 0;
+
+      const onStart = (clientX, clientY) => {
+        isDragging = true;
+        startX = clientX;
+        startY = clientY;
+        initOffX = parseFloat(document.getElementById('offsetXRange').value) || 0;
+        initOffY = parseFloat(document.getElementById('offsetYRange').value) || 0;
+      };
+
+      const onMove = (clientX, clientY, rectWidth, rectHeight) => {
+        if (!isDragging) return;
+        const dxPct = Math.round(((clientX - startX) / Math.max(120, rectWidth)) * 100);
+        const dyPct = Math.round(((clientY - startY) / Math.max(120, rectHeight)) * 100);
+
+        const newX = Math.max(-100, Math.min(100, initOffX + dxPct));
+        const newY = Math.max(-100, Math.min(100, initOffY + dyPct));
+
+        document.getElementById('offsetXRange').value = newX;
+        document.getElementById('offsetYRange').value = newY;
+        handleOffsetChange();
+      };
+
+      const onEnd = () => { isDragging = false; };
+
+      [umbrellaCanvas, orbitCanvas, spinCanvas].forEach(cnv => {
+        cnv.addEventListener('mousedown', e => onStart(e.clientX, e.clientY));
+        window.addEventListener('mousemove', e => {
+          if (isDragging) {
+            const rect = cnv.getBoundingClientRect();
+            onMove(e.clientX, e.clientY, rect.width, rect.height);
+          }
+        });
+        window.addEventListener('mouseup', onEnd);
+
+        cnv.addEventListener('touchstart', e => {
+          if (e.touches.length === 1) {
+            onStart(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        }, { passive: true });
+
+        cnv.addEventListener('touchmove', e => {
+          if (isDragging && e.touches.length === 1) {
+            const rect = cnv.getBoundingClientRect();
+            onMove(e.touches[0].clientX, e.touches[0].clientY, rect.width, rect.height);
+          }
+        }, { passive: true });
+
+        cnv.addEventListener('touchend', onEnd);
+
+        // Mouse Wheel untuk Zoom cepat di PC
+        cnv.addEventListener('wheel', e => {
+          e.preventDefault();
+          const delta = e.deltaY < 0 ? 5 : -5;
+          stepSlider('scaleXRange', delta, 'scaleX');
+        }, { passive: false });
+      });
     }
 
     function renderTransformedSourceToRawCanvas(sourceElem) {
@@ -836,27 +1003,27 @@
       const viewLev = document.getElementById('simViewportLeviwand');
 
       if (deviceType === 'umbrella') {
-        btnUmb.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 bg-gradient-to-r from-cyber-cyan to-blue-500 text-black shadow';
-        btnLev.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 text-slate-400 hover:text-white';
+        btnUmb.className = 'px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-extrabold transition flex items-center gap-1 bg-gradient-to-r from-cyber-cyan to-blue-500 text-black shadow';
+        btnLev.className = 'px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-extrabold transition flex items-center gap-1 text-slate-400 hover:text-white';
         cardUmb.classList.remove('hidden');
         cardLev.classList.add('hidden');
         viewUmb.classList.remove('hidden');
         viewLev.classList.add('hidden');
 
         document.getElementById('bannerIcon').innerText = '☂️';
-        document.getElementById('bannerTitle').innerText = 'Mode Aktif: Payung LED Trisuka Master Sync (Firmware v0.0.7 - Horizontal Zigzag)';
-        document.getElementById('bannerSub').innerText = 'P1 (Pin 2): Baris 1-23 (990 LED) Bawah ke Tengah • P2 (Pin 4): Baris 24-33 (362 LED) Tengah ke Atas • Total: 1.352 LED';
+        document.getElementById('bannerTitle').innerText = 'Mode Aktif: Payung LED Trisuka (Horizontal Zig-Zag Bawah ➔ Atas)';
+        document.getElementById('bannerSub').innerText = 'P1 (Pin 2): Baris 1-23 (990 LED) • P2 (Pin 4): Baris 24-33 (362 LED) • Total: 1.352 LED (4.056 B/Frame)';
         document.getElementById('bannerBadge1').innerText = '33 Baris Zig-Zag';
         document.getElementById('bannerBadge2').innerText = '4.056 B / Frame';
-        document.getElementById('simHeaderTitle').innerHTML = '<span>☂️ SIMULATOR KANVAS PAYUNG LED (1.352 PIXEL ZIG-ZAG)</span>';
-        document.getElementById('simHeaderSub').innerText = 'Jalur Horizontal Zig-Zag: P1 Baris 1 (17 LED Bawah, Kiri➔Kanan) naik ke P2 Baris 33 (18 LED Atas)';
-        document.getElementById('activePropFooterLbl').innerText = 'Target: Payung 1.352 LED';
+        document.getElementById('simHeaderTitle').innerHTML = '<span>☂️ SIMULATOR & EDITOR LANGSUNG (1.352 LED)</span>';
+        document.getElementById('simHeaderSub').innerText = 'Sentuh & geser langsung di kanvas atau gunakan slider di bawah';
+        document.getElementById('activePropFooterLbl').innerText = 'Target Aktif: Payung 1.352 LED (64KB PSRAM Write-Buffer v0.0.7)';
 
         const fnInput = document.getElementById('outFilename');
         if (fnInput.value.includes('leviwand')) fnInput.value = 'payung_sync.bin';
       } else {
-        btnLev.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 bg-gradient-to-r from-cyber-purple to-pink-500 text-white shadow';
-        btnUmb.className = 'px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition flex items-center gap-1.5 text-slate-400 hover:text-white';
+        btnLev.className = 'px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-extrabold transition flex items-center gap-1 bg-gradient-to-r from-cyber-purple to-pink-500 text-white shadow';
+        btnUmb.className = 'px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[11px] sm:text-xs font-extrabold transition flex items-center gap-1 text-slate-400 hover:text-white';
         cardLev.classList.remove('hidden');
         cardUmb.classList.add('hidden');
         viewLev.classList.remove('hidden');
@@ -864,12 +1031,12 @@
 
         document.getElementById('bannerIcon').innerText = '🪄';
         document.getElementById('bannerTitle').innerText = 'Mode Aktif: Leviwand POV 58-LED Smart Dual-Mode (Firmware v0.0.9)';
-        document.getElementById('bannerSub').innerText = 'DI=D25, CI=D26 • Sensor Gyro MPU6050 (SDA=D21, SCL=D22) • Paket A (Orbit Tegak) + Paket B (Polar Spin 360°)';
+        document.getElementById('bannerSub').innerText = 'DI=D25, CI=D26 • Sensor Gyro MPU6050 • Paket A (Orbit Tegak) + Paket B (Polar Spin 360°)';
         document.getElementById('bannerBadge1').innerText = '58 Dot LED (174 B/Kol)';
         document.getElementById('bannerBadge2').innerText = 'Auto-Detect Gyro';
-        document.getElementById('simHeaderTitle').innerHTML = '<span>👁️ SIMULATOR POV LEVIWAND REAL-TIME (58 DOT LED)</span>';
-        document.getElementById('simHeaderSub').innerText = 'Pratinjau Paket A (Mode 1 Orbit Mengelilingi Tubuh) & Paket B (Mode 2 Spin 360°)';
-        document.getElementById('activePropFooterLbl').innerText = 'Target: Leviwand 58 LED';
+        document.getElementById('simHeaderTitle').innerHTML = '<span>👁️ SIMULATOR & EDITOR LEVIWAND (58 DOT LED)</span>';
+        document.getElementById('simHeaderSub').innerText = 'Pratinjau Paket A (Orbit) & Paket B (Spin 360°) secara real-time';
+        document.getElementById('activePropFooterLbl').innerText = 'Target Aktif: Leviwand POV 58 LED';
 
         const fnInput = document.getElementById('outFilename');
         if (fnInput.value.includes('payung')) fnInput.value = 'leviwand_smart.bin';
@@ -908,7 +1075,7 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast('File index.html berhasil diunduh! Siap di-hosting gratis di GitHub.');
+      showToast('File index.html berhasil diunduh!');
     }
 
     function switchSourceTab(tab) {
@@ -1135,6 +1302,7 @@
             renderTransformedSourceToRawCanvas(img);
             document.getElementById('rawSourceDim').innerText = `${img.width} × ${img.height} px`;
             refreshPreviewAndStats();
+            showToast('Gambar dimuat! Silakan atur skala/posisi di bawah preview.');
           };
           img.src = ev.target.result;
         };
@@ -1153,10 +1321,6 @@
       return Math.round(Math.pow(norm, gamma) * 255.0);
     }
 
-    /**
-     * Mengekstrak 1 Frame Payung LED (1.352 LED = 4.056 Bytes RGB) dari sourceElem
-     * sesuai urutan Zig-Zag Bawah ke Atas (P1 Baris 1 -> P2 Baris 33)
-     */
     function extractUmbrellaFrameBytes(sourceElem, mapMode, gamma, briScale, flipVert, mirrorHoriz, rotationOffsetRad = 0) {
       const sqSize = 240;
       const off = document.createElement('canvas');
@@ -1197,9 +1361,6 @@
       return outBytes;
     }
 
-    /**
-     * Mengekstrak Paket A (Orbit) dan Paket B (Polar 360 Spin) untuk Leviwand 58-LED
-     */
     function extractFramePovBuffers(sourceElem, ledCount, colsPerMode, gamma, briScale, flipVert, mirrorHoriz) {
       const offOrbit = document.createElement('canvas');
       offOrbit.width = colsPerMode;
@@ -1306,7 +1467,7 @@
 
       const cfg = getSettings();
       if (activePropDevice === 'umbrella') {
-        const rotOffset = (simActive && currentSourceType !== 'video' && document.getElementById('chkAnimatePreset').checked)
+        const rotOffset = (simActive && currentSourceType === 'preset' && document.getElementById('chkAnimatePreset').checked)
           ? (simStepCounter * 0.025)
           : 0;
         currentUmbrellaFrameData = extractUmbrellaFrameBytes(
@@ -1318,8 +1479,8 @@
         );
         currentOrbitColsData = orbitBytes;
         currentSpinColsData = spinBytes;
-        document.getElementById('orbitResLabel').innerText = `${cfg.colsPerMode} Kolom × ${cfg.ledCount} LED`;
-        document.getElementById('spinResLabel').innerText = `${cfg.colsPerMode} Sudut × ${cfg.ledCount} LED`;
+        document.getElementById('orbitResLabel').innerText = `${cfg.colsPerMode}×${cfg.ledCount}`;
+        document.getElementById('spinResLabel').innerText = `${cfg.colsPerMode}×${cfg.ledCount}`;
       }
 
       updateSizeEstimation();
@@ -1342,16 +1503,16 @@
 
       if (activePropDevice === 'umbrella') {
         const totalBytes = frameCount * UMBRELLA_FRAME_BYTES;
-        document.getElementById('statColsInfo').innerText = `${frameCount} Frame @ ${fps} FPS (33 Baris Payung)`;
-        document.getElementById('statSliceBytes').innerText = `4,056 bytes (1.352 LED × 3B RGB)`;
+        document.getElementById('statColsInfo').innerText = `${frameCount} Frame @ ${fps} FPS (33 Baris)`;
+        document.getElementById('statSliceBytes').innerText = `4,056 bytes (1.352 LED × 3B)`;
         document.getElementById('statTotalSize').innerText = `${totalBytes.toLocaleString('id-ID')} B (${(totalBytes / 1024).toFixed(1)} KB)`;
 
         if (totalBytes <= 6 * 1024 * 1024) {
-          badge.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-green/20 text-cyber-green border border-cyber-green/40 font-bold';
-          badge.innerText = '⚡ 0ms PSRAM Cache (≤ 6MB)';
+          badge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-green/20 text-cyber-green border border-cyber-green/40 font-bold';
+          badge.innerText = '⚡ 0ms PSRAM (≤ 6MB)';
         } else {
-          badge.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-orange/20 text-cyber-orange border border-cyber-orange/40 font-bold';
-          badge.innerText = '💾 Direct SD Stream (> 6MB)';
+          badge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-orange/20 text-cyber-orange border border-cyber-orange/40 font-bold';
+          badge.innerText = '💾 Direct SD (> 6MB)';
         }
       } else {
         const sliceBytes = cfg.ledCount * 3;
@@ -1359,17 +1520,17 @@
         const totalBytes = frameCount * colsPerFrame * sliceBytes;
 
         document.getElementById('statColsInfo').innerText = (cfg.mode === 'dual')
-          ? `${colsPerFrame} kol/frm (${cfg.colsPerMode} Orbit + ${cfg.colsPerMode} Spin) × ${frameCount} frm`
+          ? `${colsPerFrame} kol/frm × ${frameCount} frm`
           : `${colsPerFrame} kol/frm × ${frameCount} frm`;
-        document.getElementById('statSliceBytes').innerText = `${sliceBytes} bytes (${cfg.ledCount} × 3B RGB)`;
+        document.getElementById('statSliceBytes').innerText = `${sliceBytes} bytes (${cfg.ledCount} × 3B)`;
         document.getElementById('statTotalSize').innerText = `${totalBytes.toLocaleString('id-ID')} B (${(totalBytes / 1024).toFixed(1)} KB)`;
 
         if (totalBytes <= 80 * 1024) {
-          badge.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-green/20 text-cyber-green border border-cyber-green/40 font-bold';
-          badge.innerText = '⚡ 0ms RAM Cache (≤ 80KB)';
+          badge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-green/20 text-cyber-green border border-cyber-green/40 font-bold';
+          badge.innerText = '⚡ RAM Cache (≤ 80KB)';
         } else {
-          badge.className = 'text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-orange/20 text-cyber-orange border border-cyber-orange/40 font-bold';
-          badge.innerText = '💾 Direct SD Stream (> 80KB)';
+          badge.className = 'text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyber-orange/20 text-cyber-orange border border-cyber-orange/40 font-bold';
+          badge.innerText = '💾 SD Stream (> 80KB)';
         }
       }
     }
@@ -1377,7 +1538,7 @@
     function toggleLaserSimulation() {
       simActive = !simActive;
       const btn = document.getElementById('btnToggleSim');
-      btn.innerText = simActive ? '⏸️ Pause Animasi' : '▶️ Play Animasi';
+      btn.innerText = simActive ? '⏸️ Pause' : '▶️ Play';
     }
 
     function drawSimulatorFrame() {
@@ -1401,7 +1562,6 @@
 
       const showGuides = document.getElementById('chkShowRingGuides').checked;
 
-      // Gambar alur kabel Zig-Zag dari LED #1 (Bawah) sampai LED #1352 (Atas)
       if (showGuides) {
         umbrellaCtx.lineWidth = 1;
         for (let i = 0; i < UMBRELLA_TOTAL_LEDS - 1; i++) {
@@ -1422,7 +1582,6 @@
         }
       }
 
-      // Gambar 1.352 titik LED sesuai posisi fisik baris horizontal
       for (let i = 0; i < UMBRELLA_TOTAL_LEDS; i++) {
         const pt = umbrellaLedCoords[i];
         const bIdx = i * 3;
@@ -1442,7 +1601,6 @@
         umbrellaCtx.fill();
       }
 
-      // Tandai titik START P1 (LED #1) dan START P2 (LED #991) jika Guide aktif
       if (showGuides && umbrellaLedCoords.length === UMBRELLA_TOTAL_LEDS) {
         const p1Start = umbrellaLedCoords[0];
         const p2Start = umbrellaLedCoords[990];
@@ -1561,7 +1719,7 @@
               document.getElementById('videoTimelineSeek').value = Math.round((vid.currentTime / vid.duration) * 1000);
             }
           }
-        } else if (activePropDevice === 'umbrella' && document.getElementById('chkAnimatePreset').checked) {
+        } else if (activePropDevice === 'umbrella' && currentSourceType === 'preset' && document.getElementById('chkAnimatePreset').checked) {
           const cfg = getSettings();
           const rotOffset = simStepCounter * 0.025;
           currentUmbrellaFrameData = extractUmbrellaFrameBytes(
@@ -1593,7 +1751,6 @@
       if (wasVideoPlaying) vid.pause();
 
       try {
-        // A. JIKA MODE PAYUNG LED (1.352 LED = 4.056 Bytes/Frame)
         if (activePropDevice === 'umbrella') {
           if (currentSourceType === 'video') {
             const totalFrames = Math.max(1, Math.min(maxF, Math.ceil((vid.duration || 1) * fps)));
@@ -1620,7 +1777,7 @@
             return outBuffer;
           } else {
             renderTransformedSourceToRawCanvas(uploadedImageObj);
-            const animateRot = document.getElementById('chkAnimatePreset').checked;
+            const animateRot = (currentSourceType === 'preset') && document.getElementById('chkAnimatePreset').checked;
             const totalFrames = animateRot ? maxF : 1;
             const outBuffer = new Uint8Array(totalFrames * UMBRELLA_FRAME_BYTES);
             pWrap.classList.remove('hidden');
@@ -1641,7 +1798,6 @@
           }
         }
 
-        // B. JIKA MODE LEVIWAND POV (58 LED)
         const sliceBytes = cfg.ledCount * 3;
         const singleModeByteLen = cfg.colsPerMode * sliceBytes;
         const frameByteLen = (cfg.mode === 'dual') ? (singleModeByteLen * 2) : singleModeByteLen;
@@ -1782,6 +1938,7 @@
     // Inisialisasi Awal
     window.addEventListener('DOMContentLoaded', () => {
       rebuildUmbrellaGeometry();
+      initCanvasTouchAndMouseDrag();
       renderPresetToSource(0);
       requestAnimationFrame(animateSimulatorLoop);
     });
